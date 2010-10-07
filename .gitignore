@@ -1,0 +1,9 @@
+syntax: glob
+*.iml
+*.ipr
+*.iws
+*.psd
+target
+.DS_Store
+*.diff
+*~

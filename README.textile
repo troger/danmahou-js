@@ -1,0 +1,4 @@
+h1. About
+
+Danmaku style shooter done with HTML5 and JavaScript
+
