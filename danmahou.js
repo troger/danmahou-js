@@ -131,14 +131,14 @@ danmahou.resourcesLoader = function() {
     };
     return that;
 };
-
 // Keyboard
 danmahou.keys = {
     KEY_LEFT: 37,
     KEY_UP: 38,
     KEY_RIGHT: 39,
     KEY_DOWN: 40,
-
+    KEY_Z: 90,
+  
     KEY_SPACE: 32,
     KEY_ENTER: 13,
     KEY_SHIFT: 16
@@ -244,6 +244,7 @@ danmahou.danmahouGame = function() {
 // Screens
 danmahou.screen = function(game) {
     var resourcesLoader = danmahou.resourcesLoader();
+    var objectManager = danmahou.objectManager();
 
     var that = {};
     that.getGame = function() {
@@ -251,6 +252,9 @@ danmahou.screen = function(game) {
     };
     that.getResourcesLoader = function() {
 	return resourcesLoader;
+    };
+    that.getObjectManager = function() {
+	return objectManager;
     };
     that.update = function(elapsed) {
     };
@@ -308,7 +312,7 @@ danmahou.loadingScreen = function(spec) {
 
     var rLoader = screen.getResourcesLoader();
     var currentLoader = rLoader.loadResources({ 
-	images: [{ name: 'player', src: 'player.png' }], 
+	images: [{ name: 'player', src: 'player.png' }, { name: 'player_bullet', src: 'player_bullet.png' }],
 	sounds: [{ name: 'vague', src: 'vague.ogg' }], 
 	onCompleteLoading: function() {
 	    game.changeScreen(spec.onCompleteScreen);
@@ -342,7 +346,6 @@ danmahou.gameScreen = function(game)  {
     var currentState = 'loadingResources';
     
     var currentMusic = null;
-    var player = null;
 
     var that = danmahou.screen(game);
     
@@ -357,11 +360,12 @@ danmahou.gameScreen = function(game)  {
 	    currentState = 'initialization';
 	    break;
 	case 'initialization':
-	    player = danmahou.player({ 
-		game: game,
-		screen: this,
-		position: danmahou.vector2(screenSize.width / 2, screenSize.height) 
-	    });
+	    this.getObjectManager().addPlayer(
+		player = danmahou.player({ 
+		    game: game,
+		    screen: this,
+		    position: danmahou.vector2(screenSize.width / 2, screenSize.height) 
+		}));
             currentMusic = danmahou.sound({ 
 		screen: this, 
 		name: 'vague', 
@@ -371,7 +375,7 @@ danmahou.gameScreen = function(game)  {
 	    currentState = 'inGame';
 	    break;
 	case 'inGame':
-	    player.update(elapsed);
+	    this.getObjectManager().update(elapsed);
 	    break;
 	}
     };
@@ -380,10 +384,70 @@ danmahou.gameScreen = function(game)  {
 	case 'inGame':
 	    ctx.fillStyle = 'rgba(0,0,0,255)';
 	    ctx.fillRect(0, 0, screenSize.width, screenSize.height);
-	    player.render(ctx);
+	    this.getObjectManager().render(ctx);
 	    break;
 	}
     };
+    return that;
+};
+
+danmahou.objectManager = function(spec) {
+    var player = null;
+    var playerBullets = [];
+    var enemyBullets = [];
+    var enemies = [];
+    var items = [];
+
+    var that = {};
+    
+    that.addPlayer = function(newPlayer) {
+	player = newPlayer;
+    };
+    that.addPlayerBullet = function(bullet) {
+	playerBullets.push(bullet);
+    };
+    that.addEnemyBullet = function(bullet) {
+	enemyBullets.push(bullet);
+    };
+    that.addEnemy = function(enemy) {
+	enemies.push(enemy);
+    };
+    that.addItems = function(item) {
+	items.push(item);
+    };
+    that.update = function(elapsed) {
+	player.update(elapsed);
+
+	enemies.forEach(function(e) {
+	    e.update(elapsed);
+	});
+	playerBullets.forEach(function(b) {
+	    b.update(elapsed);
+	});
+	enemyBullets.forEach(function(b) {
+	    b.update(elapsed);
+	});
+	items.forEach(function(item) {
+	    item.update(elapsed);
+	});
+    };
+    that.render = function(ctx) {
+	player.render(ctx);
+	
+	enemies.forEach(function(e) {
+	    e.render(ctx);
+	});
+	playerBullets.forEach(function(b) {
+	    b.render(ctx);
+	});
+	enemyBullets.forEach(function(b) {
+	    b.render(ctx);
+	});
+	items.forEach(function(item) {
+	    item.render(ctx);
+	});
+    };
+
     return that;
 };
 
@@ -405,6 +469,8 @@ danmahou.object = function(spec) {
 };
 
 danmahou.player = function(spec) {
+    var delay = 0;
+
     var that = danmahou.object(spec);
 
     that.update = function(elapsed) {
@@ -449,11 +515,24 @@ danmahou.player = function(spec) {
 	}
 
 	if (keyboard.isKeyDown(danmahou.keys.KEY_Z)) {
-	    this.shoot();
+	    if (delay <= 0) {
+		this.shoot();
+		delay = 50;
+	    } else {
+		delay -= elapsed;
+	    }
 	}
     };
+    
     that.shoot = function() {
-	
+	var objectManager = spec.screen.getObjectManager();
+	objectManager.addPlayerBullet(
+	    danmahou.playerBullet({
+		screen: spec.screen,
+		position: danmahou.vector2(this.position.x, this.position.y),
+		direction: danmahou.vector2(0, -1),
+		velocity: 1.5
+	    }));
     };
     
     return danmahou.visualObject(that, { game: game, screen: spec.screen, image: 'player' });
@@ -475,11 +554,15 @@ danmahou.animatedObject = function(object, spec) {
 };
 
 danmahou.playerBullet = function(spec) {
-    var that = {};
-    
-    
 
-    return danmahou.visualObject(that, { game: game, image: 'player_bullet' });
+    var that = danmahou.object(spec);
+    
+    that.update = function(elapsed) {
+	this.position.x += this.direction.x * this.velocity * elapsed;
+	this.position.y += this.direction.y * this.velocity * elapsed;
+    };
+
+    return danmahou.visualObject(that, { game: game, screen: spec.screen, image: 'player_bullet' });
 };
 
 // Sound
