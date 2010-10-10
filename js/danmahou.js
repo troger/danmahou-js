@@ -1,6 +1,7 @@
 danmahou.danmahouGame = function() {
   var game = danmahou.game({ screenSize: danmahou.size(450, 600), 
-                             gameKeys: [danmahou.keys.KEY_UP, danmahou.keys.KEY_DOWN, danmahou.keys.KEY_RIGHT, danmahou.keys.KEY_LEFT, danmahou.keys.KEY_SHIFT, danmahou.keys.KEY_ENTER] });
+                             gameKeys: [danmahou.keys.KEY_UP, danmahou.keys.KEY_DOWN, danmahou.keys.KEY_RIGHT, 
+                                        danmahou.keys.KEY_LEFT, danmahou.keys.KEY_SHIFT, danmahou.keys.KEY_ENTER] });
   return game;
 };
 
@@ -11,12 +12,12 @@ danmahou.mainMenuScreen = function(game) {
   var that = danmahou.screen(game);
   that.render = function(ctx) {
     var screenSize = game.getScreenSize();
-    ctx.fillStyle = 'rgba(0,0,0,255)';
+    ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, screenSize.width, screenSize.height);
 
     var screenSize = game.getScreenSize();
     for (var index = 0; index < items.length; index++) {
-      var color = index === selectedItemIndex ? 'rgba(255, 0, 0, 255)' : 'rgba(255, 255, 255, 255)';
+      var color = index === selectedItemIndex ? 'red' : 'white';
       var y = (screenSize.height / 2) - (40 * (items.length - 1)) + index * 40;
       danmahou.drawText({ ctx: ctx, text: items[index], x: screenSize.width / 2, y: y, color: color, size: 20 });
     }
@@ -52,9 +53,9 @@ danmahou.loadingScreen = function(spec) {
   var lastResourceLoaded = null;
 
   var rLoader = screen.getResourcesLoader();
-  var currentLoader = rLoader.loadResources({ 
-    images: [{ name: 'player', src: 'player.png' }, { name: 'player_bullet', src: 'player_bullet.png' }],
-    sounds: [{ name: 'vague', src: 'vague.ogg' }], 
+  var currentLoader = rLoader.loadResources({
+    images: spec.level.getImages(),
+    sounds: spec.level.getSounds(), 
     onCompleteLoading: function() {
       game.changeScreen(spec.onCompleteScreen);
     }, 
@@ -82,25 +83,30 @@ danmahou.loadingScreen = function(spec) {
 };
 
 danmahou.gameScreen = function(game)  {
+  var that = danmahou.screen(game);
+
   var screenSize = game.getScreenSize();
 
   var currentState = 'loadingResources';
   
-  var currentMusic = null;
+  var currentLevel = null;
 
-  var that = danmahou.screen(game);
+  var currentMusic = null;
   
   that.update = function(elapsed) {
     switch (currentState) {
     case 'loadingResources':
+      currentLevel = danmahou.level1(this);
       game.changeScreen(danmahou.loadingScreen({
         game: game,
         screen: this,
+        level: currentLevel,
         onCompleteScreen: this
       }));
       currentState = 'initialization';
       break;
     case 'initialization':
+      currentLevel.initializeLevel();
       this.getObjectManager().addPlayer(
         player = danmahou.player({ 
           game: game,
@@ -116,6 +122,11 @@ danmahou.gameScreen = function(game)  {
       currentState = 'inGame';
       break;
     case 'inGame':
+      var enemies = currentLevel.spawn(elapsed);
+      for (var index = 0; index < enemies.length; ++index) {
+        this.getObjectManager().addEnemy(enemies[index]);
+      }
+
       this.getObjectManager().update(elapsed);
       break;
     }
@@ -123,7 +134,7 @@ danmahou.gameScreen = function(game)  {
   that.render = function(ctx) {
     switch(currentState) {
     case 'inGame':
-      ctx.fillStyle = 'rgba(0,0,0,255)';
+      ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, screenSize.width, screenSize.height);
       this.getObjectManager().render(ctx);
       break;

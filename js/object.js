@@ -120,3 +120,10 @@ danmahou.playerBullet = function(spec) {
 
   return danmahou.visualObject(that, { game: game, screen: spec.screen, image: 'player_bullet' });
 };
+
+danmahou.enemy = function(spec) {
+  var that = danmahou.object(spec);
+  that.update = spec.update;
+  that.delay = spec.delay;
+  return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
+};
