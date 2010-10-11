@@ -116,6 +116,14 @@ danmahou.playerBullet = function(spec) {
   that.update = function(elapsed) {
     this.position.x += this.direction.x * this.velocity * elapsed;
     this.position.y += this.direction.y * this.velocity * elapsed;
+
+    var screenSize = game.getScreenSize();
+    if ((this.position.x + this.size.width * 0.5 < 0)
+        || (this.position.x - this.size.width * 0.5 > screenSize.width)
+        || (this.position.y + this.size.height * 0.5 < 0)
+        || (this.position.y - this.size.height * 0.5 > screenSize.height)) {
+      this.dead = true;
+    }
   };
 
   return danmahou.visualObject(that, { game: game, screen: spec.screen, image: 'player_bullet' });

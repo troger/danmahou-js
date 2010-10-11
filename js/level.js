@@ -49,7 +49,6 @@ danmahou.level1 = function(screen) {
           if (this.position.y < 250) {
             this.position.x += this.direction.x * this.velocity * elapsed;
             this.position.y += this.direction.y * this.velocity * elapsed;
-            console.log(this.position.y);
           }
         },
         delay: 500
@@ -64,7 +63,6 @@ danmahou.level1 = function(screen) {
           if (this.position.y < 250) {
             this.position.x += this.direction.x * this.velocity * elapsed;
             this.position.y += this.direction.y * this.velocity * elapsed;
-            console.log(this.position.y);
           }
         },
         delay: 500
@@ -79,7 +77,6 @@ danmahou.level1 = function(screen) {
           if (this.position.y < 250) {
             this.position.x += this.direction.x * this.velocity * elapsed;
             this.position.y += this.direction.y * this.velocity * elapsed;
-            console.log(this.position.y);
           }
         },
         delay: 500

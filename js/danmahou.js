@@ -126,7 +126,6 @@ danmahou.gameScreen = function(game)  {
       for (var index = 0; index < enemies.length; ++index) {
         this.getObjectManager().addEnemy(enemies[index]);
       }
-
       this.getObjectManager().update(elapsed);
       break;
     }
@@ -137,6 +136,7 @@ danmahou.gameScreen = function(game)  {
       ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, screenSize.width, screenSize.height);
       this.getObjectManager().render(ctx);
+      danmahou.drawText({ ctx: ctx, text: 'Objects: ' + this.getObjectManager().totalObjects(), x: screenSize.width, y: 10, size: 14, align: 'right'  });
       break;
     }
   };
@@ -152,6 +152,10 @@ danmahou.objectManager = function(spec) {
 
   var that = {};
   
+  that.totalObjects = function() {
+    return 1 + playerBullets.length + enemyBullets.length + enemies.length + items.length;
+  };
+
   that.addPlayer = function(newPlayer) {
     player = newPlayer;
   };
@@ -169,18 +173,35 @@ danmahou.objectManager = function(spec) {
   };
   that.update = function(elapsed) {
     player.update(elapsed);
-    enemies.forEach(function(e) {
+
+    for (var i = 0; i < enemies.length; ++i) {
+      var e = enemies[i];
       e.update(elapsed);
-    });
-    playerBullets.forEach(function(b) {
+      if (e.dead === true) {
+        enemies.splice(i, 1);
+      }
+    }
+    for (var i = 0; i < playerBullets.length; ++i) {
+      var b = playerBullets[i];
       b.update(elapsed);
-    });
-    enemyBullets.forEach(function(b) {
+      if (b.dead === true) {
+        playerBullets.splice(i, 1);
+      }
+    }
+    for (var i = 0; i < enemyBullets.length; ++i) {
+      var b = enemyBullets[i];
       b.update(elapsed);
-    });
-    items.forEach(function(item) {
+      if (b.dead === true) {
+        enemyBullets.splice(i, 1);
+      }
+    }
+    for (var i = 0; i < items.length; ++i) {
+      var item = items[i];
       item.update(elapsed);
-    });
+      if (item.dead === true) {
+        items.splice(i, 1);
+      }
+    }
   };
   that.render = function(ctx) {
     player.render(ctx);
