@@ -202,6 +202,21 @@ danmahou.objectManager = function(spec) {
         items.splice(i, 1);
       }
     }
+
+    // collisions
+    // playerBullets with enemies
+    for (var i = 0; i < playerBullets.length; ++i) {
+      if (playerBullets[i].isCollidable === true) {
+        for (var j = 0; j < enemies.length; ++j) {
+          if (enemies[j].isCollidable === true) {
+            if(playerBullets[i].getCollisionArea().intersects(enemies[j].getCollisionArea())) {
+              enemies[j].dead = true;
+              playerBullets[i].dead = true;
+            }
+          }
+        }
+      }
+    }
   };
   that.render = function(ctx) {
     player.render(ctx);

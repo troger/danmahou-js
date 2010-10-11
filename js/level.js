@@ -38,50 +38,54 @@ danmahou.level1 = function(screen) {
   var that = danmahou.level(spec);
 
   that.initializeLevel = function() {
-    that.enemies = [
-      danmahou.enemy({
+    that.enemies = [];
+    for (var delay = 500; delay < 50000; delay += 500) {
+      that.enemies.push(danmahou.enemy({
         screen: screen,
         position: danmahou.vector2(100, -100),
         direction: danmahou.vector2(0, 1),
         velocity: 0.3,
         image: 'enemy1',
+        collisionArea: danmahou.rect(10, 10, 44, 44),
         update: function(elapsed) {
           if (this.position.y < 250) {
             this.position.x += this.direction.x * this.velocity * elapsed;
             this.position.y += this.direction.y * this.velocity * elapsed;
           }
         },
-        delay: 500
-      }),
-      danmahou.enemy({
+        delay: delay
+      }));
+      that.enemies.push(danmahou.enemy({
         screen: screen,
         position: danmahou.vector2(200, -100),
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
         image: 'enemy1',
+        collisionArea: danmahou.rect(10, 10, 44, 44),
         update: function(elapsed) {
           if (this.position.y < 250) {
             this.position.x += this.direction.x * this.velocity * elapsed;
             this.position.y += this.direction.y * this.velocity * elapsed;
           }
         },
-        delay: 500
-      }),
-      danmahou.enemy({
+        delay: delay
+      }));
+      that.enemies.push(danmahou.enemy({
         screen: screen,
         position: danmahou.vector2(300, -100),
         direction: danmahou.vector2(0, 1),
         velocity: 0.3,
         image: 'enemy1',
+        collisionArea: danmahou.rect(10, 10, 44, 44),
         update: function(elapsed) {
           if (this.position.y < 250) {
             this.position.x += this.direction.x * this.velocity * elapsed;
             this.position.y += this.direction.y * this.velocity * elapsed;
           }
         },
-        delay: 500
-      })
-    ];
+        delay: delay
+      }));
+    }
   };
 
   return that;

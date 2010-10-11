@@ -80,14 +80,16 @@ danmahou.player = function(spec) {
         screen: spec.screen,
         position: danmahou.vector2(this.position.x - bulletImage.width / 2, this.position.y),
         direction: danmahou.vector2(0, -1),
-        velocity: 1.5
+        velocity: 1.5,
+        collisionArea: danmahou.rect(1, 5, 14, 45)
       }));
     objectManager.addPlayerBullet(
       danmahou.playerBullet({
         screen: spec.screen,
         position: danmahou.vector2(this.position.x + bulletImage.width / 2, this.position.y),
         direction: danmahou.vector2(0, -1),
-        velocity: 1.5
+        velocity: 1.5,
+        collisionArea: danmahou.rect(1, 5, 14, 45)
       }));
   };
   
@@ -113,6 +115,12 @@ danmahou.playerBullet = function(spec) {
 
   var that = danmahou.object(spec);
   
+  that.isCollidable = true;
+  that.getCollisionArea = function() {
+    spec.collisionArea.setCenter(this.position.x, this.position.y);
+    return spec.collisionArea;
+  };
+
   that.update = function(elapsed) {
     this.position.x += this.direction.x * this.velocity * elapsed;
     this.position.y += this.direction.y * this.velocity * elapsed;
@@ -133,5 +141,10 @@ danmahou.enemy = function(spec) {
   var that = danmahou.object(spec);
   that.update = spec.update;
   that.delay = spec.delay;
+  that.isCollidable = true;
+  that.getCollisionArea = function() {
+    spec.collisionArea.setCenter(this.position.x, this.position.y);
+    return spec.collisionArea;
+  };
   return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
 };
