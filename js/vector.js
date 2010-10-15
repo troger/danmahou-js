@@ -15,6 +15,10 @@ danmahou.vector2 = function(x, y) {
   that.x = Number(x) || 0;
   that.y = Number(y) || 0;
 
+  that.clone = function() {
+    return danmahou.vector2(this.x, this.y);
+  }
+
   that.length = function() {
     return Math.sqrt(this.lengthSquared());
   }

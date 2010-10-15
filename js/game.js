@@ -30,7 +30,7 @@ danmahou.game = function(spec) {
   that.run = function() {
     this.init();
     lastUpdate = danmahou.now();
-    interval = danmahou.setInterval(this.updateAndRender, 0, this);
+    interval = danmahou.setInterval(this.updateAndRender, 10, this);
   };
   that.updateAndRender = function() {
     var now = danmahou.now();

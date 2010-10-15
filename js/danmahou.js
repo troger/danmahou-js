@@ -1,6 +1,6 @@
 danmahou.danmahouGame = function() {
-  var game = danmahou.game({ screenSize: danmahou.size(450, 600), 
-                             gameKeys: [danmahou.keys.KEY_UP, danmahou.keys.KEY_DOWN, danmahou.keys.KEY_RIGHT, 
+  var game = danmahou.game({ screenSize: danmahou.size(450, 600),
+                             gameKeys: [danmahou.keys.KEY_UP, danmahou.keys.KEY_DOWN, danmahou.keys.KEY_RIGHT,
                                         danmahou.keys.KEY_LEFT, danmahou.keys.KEY_SHIFT, danmahou.keys.KEY_ENTER] });
   return game;
 };
@@ -55,14 +55,14 @@ danmahou.loadingScreen = function(spec) {
   var rLoader = screen.getResourcesLoader();
   var currentLoader = rLoader.loadResources({
     images: spec.level.getImages(),
-    sounds: spec.level.getSounds(), 
+    sounds: spec.level.getSounds(),
     onCompleteLoading: function() {
       game.changeScreen(spec.onCompleteScreen);
-    }, 
-    onResourceLoaded: function(resource) { 
-      lastResourceLoaded = resource.src.substring(resource.src.lastIndexOf('/') + 1);  
-    }, 
-    context: this });  
+    },
+    onResourceLoaded: function(resource) {
+      lastResourceLoaded = resource.src.substring(resource.src.lastIndexOf('/') + 1);
+    },
+    context: this });
 
   var that = danmahou.screen(game);
 
@@ -88,11 +88,11 @@ danmahou.gameScreen = function(game)  {
   var screenSize = game.getScreenSize();
 
   var currentState = 'loadingResources';
-  
+
   var currentLevel = null;
 
   var currentMusic = null;
-  
+
   that.update = function(elapsed) {
     switch (currentState) {
     case 'loadingResources':
@@ -108,15 +108,15 @@ danmahou.gameScreen = function(game)  {
     case 'initialization':
       currentLevel.initializeLevel();
       this.getObjectManager().addPlayer(
-        player = danmahou.player({ 
+        player = danmahou.player({
           game: game,
           screen: this,
-          position: danmahou.vector2(screenSize.width / 2, screenSize.height) 
+          position: danmahou.vector2(screenSize.width / 2, screenSize.height)
         }));
-      currentMusic = danmahou.sound({ 
-        screen: this, 
-        name: 'vague', 
-        loop: true 
+      currentMusic = danmahou.sound({
+        screen: this,
+        name: 'vague',
+        loop: true
       });
       currentMusic.play();
       currentState = 'inGame';
@@ -151,7 +151,7 @@ danmahou.objectManager = function(spec) {
   var items = [];
 
   var that = {};
-  
+
   that.totalObjects = function() {
     return 1 + playerBullets.length + enemyBullets.length + enemies.length + items.length;
   };
@@ -173,6 +173,10 @@ danmahou.objectManager = function(spec) {
   };
   that.update = function(elapsed) {
     player.update(elapsed);
+    if (player.dead === true) {
+      player.position = danmahou.vector2(screenSize.width / 2, screenSize.height);
+      player.dead = false;
+    }
 
     for (var i = 0; i < enemies.length; ++i) {
       var e = enemies[i];
@@ -214,6 +218,17 @@ danmahou.objectManager = function(spec) {
               playerBullets[i].dead = true;
             }
           }
+        }
+      }
+    }
+    // enemyBullets with player
+    for (var i = 0; i < enemyBullets.length; ++i) {
+      if (enemyBullets[i].isCollidable === true) {
+        if (player.isCollidable === true) {
+          if(enemyBullets[i].getCollisionArea().intersects(player.getCollisionArea())) {
+              player.dead = true;
+              enemyBullets[i].dead = true;
+            }
         }
       }
     }

@@ -1,6 +1,7 @@
 // Object
 danmahou.object = function(spec) {
   var game = spec.screen.getGame();
+  var screen = spec.screen;
 
   var that = {};
   that.position = spec.position || danmahou.vector2();
@@ -46,7 +47,7 @@ danmahou.player = function(spec) {
     }
     this.position.x += moveX;
     this.position.y += moveY;
-    
+
     var screenSize = game.getScreenSize();
     if (this.position.x < 0 + this.size.width / 2)  {
       this.position.x = 0 + this.size.width / 2;
@@ -70,29 +71,38 @@ danmahou.player = function(spec) {
       }
     }
   };
-  
+
   that.shoot = function() {
     var objectManager = spec.screen.getObjectManager();
     var resourcesLoader = spec.screen.getResourcesLoader();
     var bulletImage = resourcesLoader.getImage('player_bullet');
     objectManager.addPlayerBullet(
-      danmahou.playerBullet({
+      danmahou.bullet({
         screen: spec.screen,
+        image: 'player_bullet',
         position: danmahou.vector2(this.position.x - bulletImage.width / 2, this.position.y),
         direction: danmahou.vector2(0, -1),
         velocity: 1.5,
         collisionArea: danmahou.rect(1, 5, 14, 45)
       }));
     objectManager.addPlayerBullet(
-      danmahou.playerBullet({
+      danmahou.bullet({
         screen: spec.screen,
+        image: 'player_bullet',
         position: danmahou.vector2(this.position.x + bulletImage.width / 2, this.position.y),
         direction: danmahou.vector2(0, -1),
         velocity: 1.5,
         collisionArea: danmahou.rect(1, 5, 14, 45)
       }));
   };
-  
+
+  var collisionArea = danmahou.rect(23, 23, 2, 2);
+  that.isCollidable = true;
+  that.getCollisionArea = function() {
+    collisionArea.setCenter(this.position.x, this.position.y);
+    return collisionArea;
+  };
+
   return danmahou.visualObject(that, { game: game, screen: spec.screen, image: 'player' });
 };
 
@@ -100,7 +110,7 @@ danmahou.visualObject = function(object, spec) {
   var image = spec.screen.getResourcesLoader().getImage(spec.image);
 
   object.size = danmahou.size(image.width, image.height);
-  
+
   object.render = function(ctx) {
     ctx.drawImage(image, this.position.x - image.width / 2, this.position.y - image.height / 2);
   };
@@ -111,10 +121,10 @@ danmahou.animatedObject = function(object, spec) {
   return object;
 };
 
-danmahou.playerBullet = function(spec) {
+danmahou.bullet = function(spec) {
 
   var that = danmahou.object(spec);
-  
+
   that.isCollidable = true;
   that.getCollisionArea = function() {
     spec.collisionArea.setCenter(this.position.x, this.position.y);
@@ -134,7 +144,7 @@ danmahou.playerBullet = function(spec) {
     }
   };
 
-  return danmahou.visualObject(that, { game: game, screen: spec.screen, image: 'player_bullet' });
+  return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
 };
 
 danmahou.enemy = function(spec) {
