@@ -1,7 +1,7 @@
 // Screens
 danmahou.screen = function(game) {
   var resourcesLoader = danmahou.resourcesLoader();
-  var objectManager = danmahou.objectManager();
+  var objectManager = danmahou.objectManager(game);
 
   var that = {};
   that.getGame = function() {

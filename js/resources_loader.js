@@ -16,7 +16,7 @@ danmahou.resourcesLoader = function() {
     var soundsToLoad = spec.sounds || [];
     var totalResourcesCount = imagesToLoad.length + soundsToLoad.length;
     var loadedResourcesCount = 0;
-    
+
     var loader = {};
     loader.getTotalResourcesCount = function() {
       return totalResourcesCount;
@@ -25,12 +25,6 @@ danmahou.resourcesLoader = function() {
       return loadedResourcesCount;
     };
     loader.load = function() {
-      for (var index = 0; index < imagesToLoad.length; index++) {
-        var image = imagesToLoad[index];
-        images[image.name] = new Image();
-        danmahou.on('load', this.handleResourceLoaded, images[image.name], this);
-        images[image.name].src = image.src;
-      }
       for (var index = 0; index < soundsToLoad.length; index++) {
         var sound = soundsToLoad[index];
         sounds[sound.name] = new Audio();
@@ -40,6 +34,13 @@ danmahou.resourcesLoader = function() {
         sounds[sound.name].preload = 'auto';
         sounds[sound.name].src = sound.src;
         sounds[sound.name].load();
+      }
+
+      for (var index = 0; index < imagesToLoad.length; index++) {
+        var image = imagesToLoad[index];
+        images[image.name] = new Image();
+        danmahou.on('load', this.handleResourceLoaded, images[image.name], this);
+        images[image.name].src = image.src;
       }
     }
     loader.handleResourceLoaded = function(e) {

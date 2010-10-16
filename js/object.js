@@ -49,7 +49,7 @@ danmahou.player = function(spec) {
     this.position.y += moveY;
 
     var screenSize = game.getScreenSize();
-    if (this.position.x < 0 + this.size.width / 2)  {
+    if (this.position.x < 0 + this.size.width / 2) {
       this.position.x = 0 + this.size.width / 2;
     }
     if (this.position.x + this.size.width / 2 > screenSize.width) {
@@ -77,23 +77,23 @@ danmahou.player = function(spec) {
     var resourcesLoader = spec.screen.getResourcesLoader();
     var bulletImage = resourcesLoader.getImage('player_bullet');
     objectManager.addPlayerBullet(
-      danmahou.bullet({
-        screen: spec.screen,
-        image: 'player_bullet',
-        position: danmahou.vector2(this.position.x - bulletImage.width / 2, this.position.y),
-        direction: danmahou.vector2(0, -1),
-        velocity: 1.5,
-        collisionArea: danmahou.rect(1, 5, 14, 45)
-      }));
+        danmahou.bullet({
+          screen: spec.screen,
+          image: 'player_bullet',
+          position: danmahou.vector2(this.position.x - bulletImage.width / 2, this.position.y),
+          direction: danmahou.vector2(0, -1),
+          velocity: 1.5,
+          collisionArea: danmahou.rect(1, 5, 14, 45)
+        }));
     objectManager.addPlayerBullet(
-      danmahou.bullet({
-        screen: spec.screen,
-        image: 'player_bullet',
-        position: danmahou.vector2(this.position.x + bulletImage.width / 2, this.position.y),
-        direction: danmahou.vector2(0, -1),
-        velocity: 1.5,
-        collisionArea: danmahou.rect(1, 5, 14, 45)
-      }));
+        danmahou.bullet({
+          screen: spec.screen,
+          image: 'player_bullet',
+          position: danmahou.vector2(this.position.x + bulletImage.width / 2, this.position.y),
+          direction: danmahou.vector2(0, -1),
+          velocity: 1.5,
+          collisionArea: danmahou.rect(1, 5, 14, 45)
+        }));
   };
 
   var collisionArea = danmahou.rect(23, 23, 2, 2);
@@ -112,12 +112,38 @@ danmahou.visualObject = function(object, spec) {
   object.size = danmahou.size(image.width, image.height);
 
   object.render = function(ctx) {
-    ctx.drawImage(image, this.position.x - image.width / 2, this.position.y - image.height / 2);
+    ctx.drawImage(image, this.position.x - this.size.width / 2, this.position.y - this.size.height / 2);
   };
   return object;
 };
 
 danmahou.animatedObject = function(object, spec) {
+  var animationIndex = 0,
+      animationElapsed = 0,
+      image = spec.screen.getResourcesLoader().getImage(spec.image);
+
+  var maxImages = image.width / spec.imageSize.width;
+
+  object.size = danmahou.size(spec.imageSize.width, spec.imageSize.height);
+
+  var oldUpdate = object.update;
+  object.update = function(elapsed) {
+    oldUpdate.call(object, elapsed);
+
+    if (animationElapsed >= spec.animationDelay) {
+      animationElapsed = 0;
+      animationIndex = (animationIndex + 1) % maxImages;
+    } else {
+      animationElapsed += elapsed;
+    }
+  };
+
+  object.render = function(ctx) {
+    ctx.drawImage(image, animationIndex * spec.imageSize.width, 0,
+        spec.imageSize.width, spec.imageSize.height,
+        this.position.x - this.size.width / 2, this.position.y - this.size.height / 2, spec.imageSize.width, spec.imageSize.height);
+  };
+
   return object;
 };
 
@@ -144,7 +170,12 @@ danmahou.bullet = function(spec) {
     }
   };
 
-  return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
+  if (spec.isAnimated === true) {
+    return danmahou.animatedObject(that, { game: game, screen: spec.screen, image: spec.image, imageSize: spec.imageSize, animationDelay: spec.animationDelay });
+  } else {
+    return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
+  }
+
 };
 
 danmahou.enemy = function(spec) {

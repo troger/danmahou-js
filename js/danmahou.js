@@ -143,7 +143,7 @@ danmahou.gameScreen = function(game)  {
   return that;
 };
 
-danmahou.objectManager = function(spec) {
+danmahou.objectManager = function(game) {
   var player = null;
   var playerBullets = [];
   var enemyBullets = [];
@@ -174,7 +174,7 @@ danmahou.objectManager = function(spec) {
   that.update = function(elapsed) {
     player.update(elapsed);
     if (player.dead === true) {
-      player.position = danmahou.vector2(screenSize.width / 2, screenSize.height);
+      player.position = danmahou.vector2(game.getScreenSize().width / 2, game.getScreenSize().height);
       player.dead = false;
     }
 
