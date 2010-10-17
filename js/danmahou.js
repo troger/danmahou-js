@@ -9,37 +9,74 @@ danmahou.mainMenuScreen = function(game) {
   var items = ['Start', 'Options', 'Credits'];
   var selectedItemIndex = 0;
 
+  var currentState = 'initialization';
+
+  var screenSize = game.getScreenSize();
+
+  var currentMusic = null;
+
   var that = danmahou.screen(game);
   that.render = function(ctx) {
-    var screenSize = game.getScreenSize();
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, screenSize.width, screenSize.height);
-
-    var screenSize = game.getScreenSize();
-    for (var index = 0; index < items.length; index++) {
-      var color = index === selectedItemIndex ? 'red' : 'white';
-      var y = (screenSize.height / 2) - (40 * (items.length - 1)) + index * 40;
-      danmahou.drawText({ ctx: ctx, text: items[index], x: screenSize.width / 2, y: y, color: color, size: 20 });
+    switch (currentState) {
+      case 'loading':
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, screenSize.width, screenSize.height);
+        danmahou.drawText({ ctx: ctx, text: 'Now loading...', x: screenSize.width / 2, y: screenSize.height / 2, size: 26, align: 'center', color: 'white' });
+        break;
+      case 'menu':
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, screenSize.width, screenSize.height);
+        for (var index = 0; index < items.length; index++) {
+          var color = index === selectedItemIndex ? 'red' : 'white';
+          var y = (screenSize.height / 2) - (40 * (items.length - 1)) + index * 40;
+          danmahou.drawText({ ctx: ctx, text: items[index], x: screenSize.width / 2, y: y, color: color, size: 20 });
+        }
+        break;
     }
   };
   that.update = function(elapsed) {
-    var keyboard = game.getKeyboard();
-    if (keyboard.isKeyPressed(danmahou.keys.KEY_DOWN)) {
-      selectedItemIndex++;
-      if (selectedItemIndex >= items.length) {
-        selectedItemIndex = 0;
-      }
-    }
-    if (keyboard.isKeyPressed(danmahou.keys.KEY_UP)) {
-      selectedItemIndex--;
-      if (selectedItemIndex < 0) {
-        selectedItemIndex = items.length - 1;
-      }
-    }
-    if(keyboard.isKeyPressed(danmahou.keys.KEY_ENTER)) {
-      if (selectedItemIndex === 0) {
-        game.changeScreen(danmahou.gameScreen(game));
-      }
+    switch (currentState) {
+      case 'initialization':
+          var rLoader = this.getResourcesLoader();
+          rLoader.clear();
+          var loader = rLoader.loadResources({
+            images: [],
+            sounds: [
+              { name: 'main_menu', src: 'data/musics/main_menu.ogg' }
+            ],
+            onCompleteLoading: function() {
+              currentMusic = danmahou.sound({
+                screen: this,
+                name: 'main_menu',
+                loop: true
+              });
+              currentMusic.play();
+              currentState = 'menu';
+            },
+            context: this });
+          currentState = 'loading';
+          break;
+      case 'menu':
+          var keyboard = game.getKeyboard();
+          if (keyboard.isKeyPressed(danmahou.keys.KEY_DOWN)) {
+            selectedItemIndex++;
+            if (selectedItemIndex >= items.length) {
+              selectedItemIndex = 0;
+            }
+          }
+          if (keyboard.isKeyPressed(danmahou.keys.KEY_UP)) {
+            selectedItemIndex--;
+            if (selectedItemIndex < 0) {
+              selectedItemIndex = items.length - 1;
+            }
+          }
+          if(keyboard.isKeyPressed(danmahou.keys.KEY_ENTER)) {
+            if (selectedItemIndex === 0) {
+              currentMusic.stop();
+              game.changeScreen(danmahou.gameScreen(game));
+            }
+          }
+          break;
     }
   };
   return that;
@@ -53,6 +90,7 @@ danmahou.loadingScreen = function(spec) {
   var lastResourceLoaded = null;
 
   var rLoader = screen.getResourcesLoader();
+  rLoader.clear();
   var currentLoader = rLoader.loadResources({
     images: spec.level.getImages(),
     sounds: spec.level.getSounds(),
@@ -116,7 +154,7 @@ danmahou.gameScreen = function(game)  {
         }));
       currentMusic = danmahou.sound({
         screen: this,
-        name: 'vague',
+        name: 'stage1',
         loop: true
       });
       currentMusic.play();
