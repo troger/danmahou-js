@@ -38,15 +38,15 @@ danmahou.level = function(spec) {
 danmahou.level1 = function(screen) {
   var spec = {
     images: [
-      { name: 'player', src: 'player.png' },
-      { name: 'player_bullet', src: 'player_bullet.png' },
-      { name: 'enemy1', src: 'enemy1.png' },
-      { name: 'bullet_green', src: 'bullet_green.png' },
-      { name: 'round_violet_bullet', src: 'round_violet_bullet.png' },
-      { name: 'round_blue_bullet', src: 'round_blue_bullet.png' }
+      { name: 'player', src: 'data/images/player.png' },
+      { name: 'player_bullet', src: 'data/images/player_bullet.png' },
+      { name: 'enemy1', src: 'data/images/enemy1.png' },
+      { name: 'bullet_green', src: 'data/images/bullet_green.png' },
+      { name: 'round_violet_bullet', src: 'data/images/round_violet_bullet.png' },
+      { name: 'round_blue_bullet', src: 'data/images/round_blue_bullet.png' }
     ],
     sounds: [
-      { name: 'vague', src: 'vague.ogg' }
+      { name: 'stage1', src: 'data/musics/stage1.ogg' }
     ]
   };
 
