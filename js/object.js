@@ -9,6 +9,8 @@ danmahou.object = function(spec) {
   that.velocity = spec.velocity || 0;
   that.size = danmahou.size(0, 0);
 
+  that.life = spec.life || 0;
+
   that.update = function(elapsed) {
   };
   that.render = function(ctx) {
@@ -83,7 +85,8 @@ danmahou.player = function(spec) {
           position: danmahou.vector2(this.position.x - bulletImage.width / 2, this.position.y),
           direction: danmahou.vector2(0, -1),
           velocity: 1.5,
-          collisionArea: danmahou.rect(1, 5, 14, 45)
+          collisionArea: danmahou.rect(1, 5, 14, 45),
+          damage : 5
         }));
     objectManager.addPlayerBullet(
         danmahou.bullet({
@@ -92,7 +95,8 @@ danmahou.player = function(spec) {
           position: danmahou.vector2(this.position.x + bulletImage.width / 2, this.position.y),
           direction: danmahou.vector2(0, -1),
           velocity: 1.5,
-          collisionArea: danmahou.rect(1, 5, 14, 45)
+          collisionArea: danmahou.rect(1, 5, 14, 45),
+          damage : 5
         }));
   };
 
@@ -102,7 +106,20 @@ danmahou.player = function(spec) {
     collisionArea.setCenter(this.position.x, this.position.y);
     return collisionArea;
   };
+  that.handleCollision = function(otherObject) {
+    if (this.dead) {
+      return;
+    }
 
+    var damage = Number(otherObject.damage) || 0;
+    otherObject.dead = true;
+    this.life -= damage;
+    if (this.life <= 0) {
+      this.dead = true;
+    } else if (damage !== 0) {
+      this.position = danmahou.vector2(game.getScreenSize().width / 2, game.getScreenSize().height - this.size.width / 2);
+    }
+  };
   return danmahou.visualObject(that, { game: game, screen: spec.screen, image: 'player' });
 };
 
@@ -151,10 +168,13 @@ danmahou.bullet = function(spec) {
 
   var that = danmahou.object(spec);
 
+  that.damage = spec.damage || 0;
   that.isCollidable = true;
   that.getCollisionArea = function() {
     spec.collisionArea.setCenter(this.position.x, this.position.y);
     return spec.collisionArea;
+  };
+  that.handleCollision = function(otherObject) {
   };
 
   that.update = function(elapsed) {
@@ -186,6 +206,13 @@ danmahou.enemy = function(spec) {
   that.getCollisionArea = function() {
     spec.collisionArea.setCenter(this.position.x, this.position.y);
     return spec.collisionArea;
+  };
+  that.handleCollision = function(otherObject) {
+    this.life -= Number(otherObject.damage) || 0;
+    otherObject.dead = true;
+    if (this.life <= 0) {
+      this.dead = true;
+    }
   };
   return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
 };

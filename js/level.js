@@ -6,6 +6,14 @@ danmahou.level = function(spec) {
   var totalElapsed = 0;
 
   var that = {};
+
+  that.initialize = function() {
+    totalElapsed = 0;
+    if (typeof this.initializeLevel === 'function') {
+      this.initializeLevel();
+    }
+  }
+
   that.getImages = function () {
     return images;
   };
@@ -46,13 +54,13 @@ danmahou.level1 = function(screen) {
 
   that.initializeLevel = function() {
     that.enemies = [];
-    for (var delay = 500; delay <= 50000; delay += 500) {
-
+    for (var delay = 500; delay <= 5000; delay += 500) {
       that.enemies.push(danmahou.enemy({
         screen: screen,
         position: danmahou.vector2(112, -100),
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
+        life: 100,
         image: 'enemy1',
         collisionArea: danmahou.rect(10, 10, 44, 44),
         update: function(elapsed) {
@@ -83,7 +91,8 @@ danmahou.level1 = function(screen) {
                     collisionArea: danmahou.rect(5, 5, 9, 9),
                     isAnimated: true,
                     animationDelay: 100,
-                    imageSize: danmahou.size(18, 18)
+                    imageSize: danmahou.size(18, 18),
+                    damage: 1
                   }));
               currentAngle += angle;
             }
@@ -100,6 +109,7 @@ danmahou.level1 = function(screen) {
         position: danmahou.vector2(224, -100),
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
+        life: 200,
         image: 'enemy1',
         collisionArea: danmahou.rect(10, 10, 44, 44),
         update: function(elapsed) {
@@ -130,7 +140,8 @@ danmahou.level1 = function(screen) {
                     collisionArea: danmahou.rect(5, 5, 9, 9),
                     isAnimated: true,
                     animationDelay: 100,
-                    imageSize: danmahou.size(18, 18)
+                    imageSize: danmahou.size(18, 18),
+                    damage: 1
                   }));
               currentAngle += angle;
             }
@@ -147,6 +158,7 @@ danmahou.level1 = function(screen) {
         position: danmahou.vector2(336, -100),
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
+        life: 50,
         image: 'enemy1',
         collisionArea: danmahou.rect(10, 10, 44, 44),
         update: function(elapsed) {
@@ -177,7 +189,8 @@ danmahou.level1 = function(screen) {
                     collisionArea: danmahou.rect(5, 5, 9, 9),
                     isAnimated: true,
                     animationDelay: 100,
-                    imageSize: danmahou.size(18, 18)
+                    imageSize: danmahou.size(18, 18),
+                    damage: 1
                   }));
               currentAngle += angle;
             }

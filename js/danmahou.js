@@ -6,7 +6,7 @@ danmahou.danmahouGame = function() {
 };
 
 danmahou.mainMenuScreen = function(game) {
-  var items = ['Start', 'Credits'];
+  var items = ['Start', 'Options', 'Credits'];
   var selectedItemIndex = 0;
 
   var that = danmahou.screen(game);
@@ -106,12 +106,13 @@ danmahou.gameScreen = function(game)  {
       currentState = 'initialization';
       break;
     case 'initialization':
-      currentLevel.initializeLevel();
+      currentLevel.initialize();
       this.getObjectManager().addPlayer(
         player = danmahou.player({
           game: game,
           screen: this,
-          position: danmahou.vector2(screenSize.width / 2, screenSize.height)
+          position: danmahou.vector2(screenSize.width / 2, screenSize.height),
+          life: 3
         }));
       currentMusic = danmahou.sound({
         screen: this,
@@ -127,17 +128,32 @@ danmahou.gameScreen = function(game)  {
         this.getObjectManager().addEnemy(enemies[index]);
       }
       this.getObjectManager().update(elapsed);
+        if (this.getObjectManager().getPlayer().dead) {
+          currentState = 'gameOver';
+        }
       break;
+
+      case 'gameOver':
+        var keyboard = game.getKeyboard();
+        if (keyboard.isKeyPressed(danmahou.keys.KEY_ENTER)) {
+          this.getObjectManager().clear();
+          currentState = 'initialization';
+        }
+        break;
     }
   };
   that.render = function(ctx) {
-    switch(currentState) {
-    case 'inGame':
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, screenSize.width, screenSize.height);
-      this.getObjectManager().render(ctx);
-      danmahou.drawText({ ctx: ctx, text: 'Objects: ' + this.getObjectManager().totalObjects(), x: screenSize.width, y: 10, size: 14, align: 'right'  });
-      break;
+    switch (currentState) {
+      case 'inGame':
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, screenSize.width, screenSize.height);
+        this.getObjectManager().render(ctx);
+        danmahou.drawText({ ctx: ctx, text: 'Objects: ' + this.getObjectManager().totalObjects(), x: screenSize.width, y: 10, size: 14, align: 'right'  });
+        break;
+
+      case 'gameOver':
+        danmahou.drawText({ ctx: ctx, text: 'GAME OVER', x: screenSize.width / 2, y: screenSize.height / 2, size: 32, align: 'center', color: 'red' });
+        break;
     }
   };
   return that;
@@ -171,11 +187,22 @@ danmahou.objectManager = function(game) {
   that.addItems = function(item) {
     items.push(item);
   };
+
+  that.getPlayer = function() {
+    return player;
+  };
+
+  that.clear = function() {
+    player = null;
+    playerBullets = [];
+    enemyBullets = [];
+    enemies = [];
+    items = [];
+  };
+
   that.update = function(elapsed) {
-    player.update(elapsed);
-    if (player.dead === true) {
-      player.position = danmahou.vector2(game.getScreenSize().width / 2, game.getScreenSize().height);
-      player.dead = false;
+    if (!player.dead) {
+      player.update(elapsed);
     }
 
     for (var i = 0; i < enemies.length; ++i) {
@@ -214,8 +241,7 @@ danmahou.objectManager = function(game) {
         for (var j = 0; j < enemies.length; ++j) {
           if (enemies[j].isCollidable === true) {
             if(playerBullets[i].getCollisionArea().intersects(enemies[j].getCollisionArea())) {
-              enemies[j].dead = true;
-              playerBullets[i].dead = true;
+              enemies[j].handleCollision(playerBullets[i]);
             }
           }
         }
@@ -226,15 +252,16 @@ danmahou.objectManager = function(game) {
       if (enemyBullets[i].isCollidable === true) {
         if (player.isCollidable === true) {
           if(enemyBullets[i].getCollisionArea().intersects(player.getCollisionArea())) {
-              player.dead = true;
-              enemyBullets[i].dead = true;
-            }
+            player.handleCollision(enemyBullets[i]);
+          }
         }
       }
     }
   };
   that.render = function(ctx) {
-    player.render(ctx);
+    if (!player.dead) {
+      player.render(ctx);
+    }
     enemies.forEach(function(e) {
       e.render(ctx);
     });
