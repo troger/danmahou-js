@@ -108,13 +108,15 @@ danmahou.loadingScreen = function(spec) {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, screenSize.width, screenSize.height);
 
-    ctx.fillStyle = 'red';
-    danmahou.drawText({ ctx: ctx, text: lastResourceLoaded, x: 50, y: (screenSize.height / 2) - 40, size: 20, align: 'left'  });
-    ctx.strokeStyle = 'red';
-    ctx.strokeRect(50, (screenSize.height / 2) - 20, screenSize.width - 100,30);
-    var percent = Math.min((currentLoader.getLoadedResourcesCount() + 1) / currentLoader.getTotalResourcesCount(), 1);
-    var width = Math.floor(percent * (screenSize.width - 100));
-    ctx.fillRect(50, (screenSize.height / 2) - 20, width, 30);
+    if (lastResourceLoaded !== null) {
+      ctx.fillStyle = 'red';
+      danmahou.drawText({ ctx: ctx, text: lastResourceLoaded, x: 50, y: (screenSize.height / 2) - 40, size: 20, align: 'left'  });
+      ctx.strokeStyle = 'red';
+      ctx.strokeRect(50, (screenSize.height / 2) - 20, screenSize.width - 100,30);
+      var percent = Math.min((currentLoader.getLoadedResourcesCount() + 1) / currentLoader.getTotalResourcesCount(), 1);
+      var width = Math.floor(percent * (screenSize.width - 100));
+      ctx.fillRect(50, (screenSize.height / 2) - 20, width, 30);
+    }
   };
 
   return that;
