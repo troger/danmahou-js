@@ -190,6 +190,7 @@ danmahou.gameScreen = function(game)  {
         ctx.fillRect(0, 0, screenSize.width, screenSize.height);
         this.getObjectManager().render(ctx);
         danmahou.drawText({ ctx: ctx, text: 'Objects: ' + this.getObjectManager().totalObjects(), x: screenSize.width, y: 10, size: 14, align: 'right'  });
+          danmahou.drawText({ ctx: ctx, text: game.getFPS() + ' fps', x: screenSize.width, y: 20, size: 14, align: 'right'  });
         break;
 
       case 'gameOver':
