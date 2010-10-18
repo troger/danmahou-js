@@ -108,13 +108,15 @@ danmahou.loadingScreen = function(spec) {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, screenSize.width, screenSize.height);
 
-    ctx.fillStyle = 'red';
-    danmahou.drawText({ ctx: ctx, text: lastResourceLoaded, x: 50, y: (screenSize.height / 2) - 40, size: 20, align: 'left'  });
-    ctx.strokeStyle = 'red';
-    ctx.strokeRect(50, (screenSize.height / 2) - 20, screenSize.width - 100,30);
-    var percent = Math.min((currentLoader.getLoadedResourcesCount() + 1) / currentLoader.getTotalResourcesCount(), 1);
-    var width = Math.floor(percent * (screenSize.width - 100));
-    ctx.fillRect(50, (screenSize.height / 2) - 20, width, 30);
+    if (lastResourceLoaded !== null) {
+      ctx.fillStyle = 'red';
+      danmahou.drawText({ ctx: ctx, text: lastResourceLoaded, x: 50, y: (screenSize.height / 2) - 40, size: 20, align: 'left'  });
+      ctx.strokeStyle = 'red';
+      ctx.strokeRect(50, (screenSize.height / 2) - 20, screenSize.width - 100,30);
+      var percent = Math.min((currentLoader.getLoadedResourcesCount() + 1) / currentLoader.getTotalResourcesCount(), 1);
+      var width = Math.floor(percent * (screenSize.width - 100));
+      ctx.fillRect(50, (screenSize.height / 2) - 20, width, 30);
+    }
   };
 
   return that;
@@ -187,6 +189,7 @@ danmahou.gameScreen = function(game)  {
         ctx.fillRect(0, 0, screenSize.width, screenSize.height);
         this.getObjectManager().render(ctx);
         danmahou.drawText({ ctx: ctx, text: 'Objects: ' + this.getObjectManager().totalObjects(), x: screenSize.width, y: 10, size: 14, align: 'right'  });
+          danmahou.drawText({ ctx: ctx, text: game.getFPS() + ' fps', x: screenSize.width, y: 20, size: 14, align: 'right'  });
         break;
 
       case 'gameOver':
@@ -239,58 +242,62 @@ danmahou.objectManager = function(game) {
   };
 
   that.update = function(elapsed) {
+    var index = 0,
+      object;
+
     if (!player.dead) {
       player.update(elapsed);
     }
 
-    for (var i = 0; i < enemies.length; ++i) {
-      var e = enemies[i];
-      e.update(elapsed);
-      if (e.dead === true) {
-        enemies.splice(i, 1);
+    for (index = enemies.length - 1; index >= 0; index -= 1) {
+      object = enemies[index];
+      object.update(elapsed);
+      if (object.dead === true) {
+        enemies.splice(index, 1);
       }
     }
-    for (var i = 0; i < playerBullets.length; ++i) {
-      var b = playerBullets[i];
-      b.update(elapsed);
-      if (b.dead === true) {
-        playerBullets.splice(i, 1);
+    for (index = playerBullets.length - 1; index >= 0; index -= 1) {
+      object = playerBullets[index];
+      object.update(elapsed);
+      if (object.dead === true) {
+        playerBullets.splice(index, 1);
       }
     }
-    for (var i = 0; i < enemyBullets.length; ++i) {
-      var b = enemyBullets[i];
-      b.update(elapsed);
-      if (b.dead === true) {
-        enemyBullets.splice(i, 1);
+
+    for (index = enemyBullets.length - 1; index >= 0; index -= 1) {
+      object = enemyBullets[index];
+      object.update(elapsed);
+      if (object.dead === true) {
+        enemyBullets.splice(index, 1);
       }
     }
-    for (var i = 0; i < items.length; ++i) {
-      var item = items[i];
-      item.update(elapsed);
-      if (item.dead === true) {
-        items.splice(i, 1);
+    for (index = items.length - 1; index >= 0; index -= 1) {
+      object = items[index];
+      object.update(elapsed);
+      if (object.dead === true) {
+        items.splice(index, 1);
       }
     }
 
     // collisions
     // playerBullets with enemies
-    for (var i = 0; i < playerBullets.length; ++i) {
-      if (playerBullets[i].isCollidable === true) {
-        for (var j = 0; j < enemies.length; ++j) {
+    for (index = playerBullets.length - 1; index >= 0; index -= 1) {
+      if (playerBullets[index].isCollidable === true) {
+        for (var j = enemies.length - 1; j >= 0; j -= 1) {
           if (enemies[j].isCollidable === true) {
-            if(playerBullets[i].getCollisionArea().intersects(enemies[j].getCollisionArea())) {
-              enemies[j].handleCollision(playerBullets[i]);
+            if(playerBullets[index].getCollisionArea().intersects(enemies[j].getCollisionArea())) {
+              enemies[j].handleCollision(playerBullets[index]);
             }
           }
         }
       }
     }
     // enemyBullets with player
-    for (var i = 0; i < enemyBullets.length; ++i) {
-      if (enemyBullets[i].isCollidable === true) {
+    for (index = enemyBullets.length - 1; index >= 0; index -= 1) {
+      if (enemyBullets[index].isCollidable === true) {
         if (player.isCollidable === true) {
-          if(enemyBullets[i].getCollisionArea().intersects(player.getCollisionArea())) {
-            player.handleCollision(enemyBullets[i]);
+          if(enemyBullets[index].getCollisionArea().intersects(player.getCollisionArea())) {
+            player.handleCollision(enemyBullets[index]);
           }
         }
       }

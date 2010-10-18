@@ -6,6 +6,19 @@ danmahou.game = function(spec) {
   var interval = null;
   var lastUpdate = 0;
 
+  var recordedFPS = 0,
+    fps = 0,
+    lastFPS = 0;
+
+  var updateFPS = function() {
+    if (danmahou.now() - lastFPS > 1000) {
+			lastFPS = danmahou.now();
+			recordedFPS = fps;
+			fps = 0;
+		}
+		fps += 1;
+  }
+
   var currentScreen = null;
 
   var keyboard = danmahou.keyboard(spec.gameKeys);
@@ -17,6 +30,10 @@ danmahou.game = function(spec) {
   that.getKeyboard = function() {
     return keyboard;
   };
+
+  that.getFPS = function() {
+    return recordedFPS;
+  }
 
   that.init = function() {
     canvas = danmahou.create('canvas');
@@ -30,7 +47,7 @@ danmahou.game = function(spec) {
   that.run = function() {
     this.init();
     lastUpdate = danmahou.now();
-    interval = danmahou.setInterval(this.updateAndRender, 10, this);
+    interval = danmahou.setInterval(this.updateAndRender, 0, this);
   };
   that.updateAndRender = function() {
     var now = danmahou.now();
@@ -38,6 +55,7 @@ danmahou.game = function(spec) {
     lastUpdate = now;
 
     if (currentScreen) {
+      updateFPS();
       currentScreen.update(elapsed);
       currentScreen.render(ctx);
     }
