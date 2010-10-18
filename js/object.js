@@ -11,6 +11,10 @@ danmahou.object = function(spec) {
 
   that.life = spec.life || 0;
 
+  that.getScreen = function() {
+    return screen;
+  };
+
   that.update = function(elapsed) {
   };
   that.render = function(ctx) {
@@ -94,6 +98,26 @@ danmahou.player = function(spec) {
           image: 'player_bullet',
           position: danmahou.vector2(this.position.x + bulletImage.width / 2, this.position.y),
           direction: danmahou.vector2(0, -1),
+          velocity: 1.5,
+          collisionArea: danmahou.rect(1, 5, 14, 45),
+          damage : 5
+        }));
+    objectManager.addPlayerBullet(
+        danmahou.bullet({
+          screen: spec.screen,
+          image: 'player_bullet',
+          position: danmahou.vector2(this.position.x + bulletImage.width, this.position.y),
+          direction: danmahou.vector2(0.15, -1),
+          velocity: 1.5,
+          collisionArea: danmahou.rect(1, 5, 14, 45),
+          damage : 5
+        }));
+    objectManager.addPlayerBullet(
+        danmahou.bullet({
+          screen: spec.screen,
+          image: 'player_bullet',
+          position: danmahou.vector2(this.position.x - bulletImage.width, this.position.y),
+          direction: danmahou.vector2(-0.15, -1),
           velocity: 1.5,
           collisionArea: danmahou.rect(1, 5, 14, 45),
           damage : 5
@@ -200,7 +224,8 @@ danmahou.bullet = function(spec) {
 
 danmahou.enemy = function(spec) {
   var that = danmahou.object(spec);
-  that.update = spec.update;
+  that.updateEnemy = spec.updateEnemy;
+  that.shoot = spec.shoot;
   that.delay = spec.delay;
   that.isCollidable = true;
   that.getCollisionArea = function() {
@@ -214,5 +239,11 @@ danmahou.enemy = function(spec) {
       this.dead = true;
     }
   };
+
+  that.update = function(elapsed) {
+    this.updateEnemy.call(this, elapsed);
+    this.shoot.call(this, elapsed);
+  };
+
   return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
 };
