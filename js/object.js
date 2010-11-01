@@ -9,6 +9,8 @@ danmahou.object = function(spec) {
   that.velocity = spec.velocity || 0;
   that.size = danmahou.size(0, 0);
 
+  that.delayBeforeSpawn = spec.delayBeforeSpawn || 0;
+
   that.life = spec.life || 0;
 
   that.getScreen = function() {

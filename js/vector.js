@@ -24,16 +24,6 @@ danmahou.math.util.toDegrees = function (angle) {
 danmahou.vector2 = function(x, y) {
   var that = {};
 
-  var reduceAngle = function(angle) {
-    if ((angle < -360) || (angle > 360)) {
-      angle = angle % 360;
-    }
-    if (angle < 0) {
-      angle = 360 + angle;
-    }
-    return angle;
-  };
-
   that.x = Number(x) || 0;
   that.y = Number(y) || 0;
 
@@ -83,4 +73,4 @@ danmahou.vector2FromAngle = function(angle) {
 danmahou.random = {};
 danmahou.random.nexFloat = function(min, max) {
   return (max - min) * Math.random() + min;
-}
+};
