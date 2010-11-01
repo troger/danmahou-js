@@ -207,6 +207,10 @@ danmahou.objectManager = function(game) {
   var enemyBullets = [];
   var enemies = [];
   var items = [];
+  var pendingPlayerBullets = [];
+  var pendingEnemyBullets = [];
+  var pendingEnemies = [];
+  var pendingItems = [];
 
   var that = {};
 
@@ -218,16 +222,32 @@ danmahou.objectManager = function(game) {
     player = newPlayer;
   };
   that.addPlayerBullet = function(bullet) {
-    playerBullets.push(bullet);
+    if (bullet.delayBeforeSpawn !== 0) {
+      pendingPlayerBullets.push(bullet);
+    } else {
+      playerBullets.push(bullet);
+    }
   };
   that.addEnemyBullet = function(bullet) {
-    enemyBullets.push(bullet);
+    if (bullet.delayBeforeSpawn !== 0) {
+      pendingEnemyBullets.push(bullet);
+    } else {
+      enemyBullets.push(bullet);
+    }
   };
   that.addEnemy = function(enemy) {
-    enemies.push(enemy);
+    if (enemy.delayBeforeSpawn !== 0) {
+      pendingEnemies.push(enemy);
+    } else {
+      enemies.push(enemy);
+    }
   };
   that.addItems = function(item) {
-    items.push(item);
+    if (item.delayBeforeSpawn !== 0) {
+      pendingItems.push(item);
+    } else {
+      items.push(item);
+    }
   };
 
   that.getPlayer = function() {
@@ -242,7 +262,49 @@ danmahou.objectManager = function(game) {
     items = [];
   };
 
+  that.updatePendingObjects = function (elapsed) {
+    var index = 0,
+      object;
+
+    for (index = pendingEnemies.length - 1; index >= 0; index -= 1) {
+      object = pendingEnemies[index];
+      object.delayBeforeSpawn -= elapsed;
+      if (object.delayBeforeSpawn <= 0) {
+        pendingEnemies.splice(index, 1);
+        enemies.push(object);
+      }
+    }
+    for (index = pendingPlayerBullets.length - 1; index >= 0; index -= 1) {
+      object = pendingPlayerBullets[index];
+      object.delayBeforeSpawn -= elapsed;
+      if (object.delayBeforeSpawn <= 0) {
+        pendingPlayerBullets.splice(index, 1);
+        playerBullets.push(object);
+      }
+    }
+
+    for (index = pendingEnemyBullets.length - 1; index >= 0; index -= 1) {
+      object = pendingEnemyBullets[index];
+      object.delayBeforeSpawn -= elapsed;
+      if (object.delayBeforeSpawn <= 0) {
+        pendingEnemyBullets.splice(index, 1);
+        enemyBullets.push(object);
+      }
+    }
+    for (index = pendingItems.length - 1; index >= 0; index -= 1) {
+      object = pendingItems[index];
+      object.delayBeforeSpawn -= elapsed;
+      if (object.delayBeforeSpawn <= 0) {
+        pendingItems.splice(index, 1);
+        items.push(object)
+      }
+    }
+
+  };
+
   that.update = function(elapsed) {
+    that.updatePendingObjects(elapsed);
+
     var index = 0,
       object;
 
