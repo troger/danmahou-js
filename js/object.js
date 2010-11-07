@@ -9,6 +9,7 @@ danmahou.object = function(spec) {
   that.velocity = spec.velocity || 0;
   that.size = danmahou.size(0, 0);
 
+  that.angle = spec.angle || 0;
   that.delayBeforeSpawn = spec.delayBeforeSpawn || 0;
 
   that.life = spec.life || 0;
@@ -87,43 +88,45 @@ danmahou.player = function(spec) {
     objectManager.addPlayerBullet(
         danmahou.bullet({
           screen: spec.screen,
-          image: 'player_bullet',
+          sprite: danmahou.sprites.playerBullet,
           position: danmahou.vector2(this.position.x - bulletImage.width / 2, this.position.y),
           direction: danmahou.vector2(0, -1),
           velocity: 1.5,
-          collisionArea: danmahou.rect(1, 5, 14, 45),
           damage : 5
         }));
     objectManager.addPlayerBullet(
         danmahou.bullet({
           screen: spec.screen,
-          image: 'player_bullet',
+          sprite: danmahou.sprites.playerBullet,
           position: danmahou.vector2(this.position.x + bulletImage.width / 2, this.position.y),
           direction: danmahou.vector2(0, -1),
           velocity: 1.5,
-          collisionArea: danmahou.rect(1, 5, 14, 45),
           damage : 5
         }));
     objectManager.addPlayerBullet(
         danmahou.bullet({
           screen: spec.screen,
-          image: 'player_bullet',
+          sprite: danmahou.sprites.playerBullet,
           position: danmahou.vector2(this.position.x + bulletImage.width, this.position.y),
           direction: danmahou.vector2(0.15, -1),
           velocity: 1.5,
-          collisionArea: danmahou.rect(1, 5, 14, 45),
           damage : 5
         }));
     objectManager.addPlayerBullet(
         danmahou.bullet({
           screen: spec.screen,
-          image: 'player_bullet',
+          sprite: danmahou.sprites.playerBullet,
           position: danmahou.vector2(this.position.x - bulletImage.width, this.position.y),
           direction: danmahou.vector2(-0.15, -1),
           velocity: 1.5,
-          collisionArea: danmahou.rect(1, 5, 14, 45),
           damage : 5
         }));
+
+    danmahou.sound({
+      screen: spec.screen,
+      name: 'player_shoot',
+      loop: false
+    }).play();
   };
 
   var collisionArea = danmahou.rect(23, 23, 2, 2);
@@ -156,7 +159,14 @@ danmahou.visualObject = function(object, spec) {
   object.size = danmahou.size(image.width, image.height);
 
   object.render = function(ctx) {
+    ctx.save();
+    if (this.angle !== 0) {
+      ctx.translate(this.position.x - this.size.width / 2, this.position.y - this.size.height / 2);
+      ctx.rotate(danmahou.math.util.toRadians(this.angle - 90));
+      ctx.translate(-(this.position.x - this.size.width / 2), -(this.position.y - this.size.height / 2));
+    }
     ctx.drawImage(image, this.position.x - this.size.width / 2, this.position.y - this.size.height / 2);
+    ctx.restore();
   };
   return object;
 };
@@ -183,9 +193,16 @@ danmahou.animatedObject = function(object, spec) {
   };
 
   object.render = function(ctx) {
+    ctx.save();
+    if (this.angle !== 0) {
+      ctx.translate(this.position.x - this.size.width / 2, this.position.y - this.size.height / 2);
+      ctx.rotate(danmahou.math.util.toRadians(this.angle - 90));
+      ctx.translate(-(this.position.x - this.size.width / 2), -(this.position.y - this.size.height / 2));
+    }
     ctx.drawImage(image, animationIndex * spec.imageSize.width, 0,
         spec.imageSize.width, spec.imageSize.height,
         this.position.x - this.size.width / 2, this.position.y - this.size.height / 2, spec.imageSize.width, spec.imageSize.height);
+    ctx.restore();
   };
 
   return object;
@@ -198,8 +215,8 @@ danmahou.bullet = function(spec) {
   that.damage = spec.damage || 0;
   that.isCollidable = true;
   that.getCollisionArea = function() {
-    spec.collisionArea.setCenter(this.position.x, this.position.y);
-    return spec.collisionArea;
+    spec.sprite.collisionArea.setCenter(this.position.x, this.position.y);
+    return spec.sprite.collisionArea;
   };
   that.handleCollision = function(otherObject) {
   };
@@ -217,10 +234,10 @@ danmahou.bullet = function(spec) {
     }
   };
 
-  if (spec.isAnimated === true) {
-    return danmahou.animatedObject(that, { game: game, screen: spec.screen, image: spec.image, imageSize: spec.imageSize, animationDelay: spec.animationDelay });
+  if (spec.sprite.isAnimated === true) {
+    return danmahou.animatedObject(that, { game: game, screen: spec.screen, image: spec.sprite.image, imageSize: spec.sprite.imageSize, animationDelay: spec.sprite.animationDelay });
   } else {
-    return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
+    return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.sprite.image });
   }
 
 };
@@ -232,8 +249,8 @@ danmahou.enemy = function(spec) {
   that.delay = spec.delay;
   that.isCollidable = true;
   that.getCollisionArea = function() {
-    spec.collisionArea.setCenter(this.position.x, this.position.y);
-    return spec.collisionArea;
+    spec.sprite.collisionArea.setCenter(this.position.x, this.position.y);
+    return spec.sprite.collisionArea;
   };
   that.handleCollision = function(otherObject) {
     this.life -= Number(otherObject.damage) || 0;
@@ -248,5 +265,9 @@ danmahou.enemy = function(spec) {
     this.shoot.call(this, elapsed);
   };
 
-  return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.image });
+  if (spec.sprite.isAnimated === true) {
+    return danmahou.animatedObject(that, { game: game, screen: spec.screen, image: spec.sprite.image, imageSize: spec.sprite.imageSize, animationDelay: spec.sprite.animationDelay });
+  } else {
+    return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.sprite.image });
+  }
 };
