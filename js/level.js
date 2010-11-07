@@ -44,10 +44,12 @@ danmahou.level1 = function(screen) {
       { name: 'enemy_rectangle', src: 'data/images/enemy_rectangle.png' },
       { name: 'round_violet_bullet', src: 'data/images/round_violet_bullet.png' },
       { name: 'round_blue_bullet', src: 'data/images/round_blue_bullet.png' },
-      { name: 'blue_bullet', src: 'data/images/blue_bullet.png' }
+      { name: 'blue_bullet', src: 'data/images/blue_bullet.png' },
+      { name: 'boss1', src: 'data/images/boss1.png' }
     ],
     sounds: [
-      { name: 'stage1', src: 'data/musics/stage1.ogg' }
+      { name: 'stage1', src: 'data/musics/stage1.ogg' },
+      { name: 'player_shoot', src: 'data/sounds/player_shoot.wav' }
     ]
   };
 
@@ -63,8 +65,7 @@ danmahou.level1 = function(screen) {
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
         life: 100,
-        image: 'enemy1',
-        collisionArea: danmahou.rect(10, 10, 44, 44),
+        sprite: danmahou.sprites.enemy1,
         updateEnemy: function(elapsed) {
           if (this.position.y < 200) {
             this.position.x += this.direction.x * this.velocity * elapsed;
@@ -81,8 +82,7 @@ danmahou.level1 = function(screen) {
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
         life: 200,
-        image: 'enemy1',
-        collisionArea: danmahou.rect(10, 10, 44, 44),
+        sprite: danmahou.sprites.enemy1,
         updateEnemy: function(elapsed) {
           if (this.position.y < 250) {
             this.position.x += this.direction.x * this.velocity * elapsed;
@@ -99,8 +99,7 @@ danmahou.level1 = function(screen) {
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
         life: 50,
-        image: 'enemy1',
-        collisionArea: danmahou.rect(10, 10, 44, 44),
+        sprite: danmahou.sprites.enemy1,
         updateEnemy: function(elapsed) {
           if (this.position.y < 200) {
             this.position.x += this.direction.x * this.velocity * elapsed;
@@ -118,17 +117,19 @@ danmahou.level1 = function(screen) {
       direction: danmahou.vector2(0, 1),
       velocity: 0.3,
       life: 400,
-      image: 'enemy_rectangle',
-      collisionArea: danmahou.rect(0, 0, 72, 144),
+      sprite: danmahou.sprites.enemyRectangle,
       updateEnemy: function(elapsed) {
         if (this.position.y < 300) {
           this.position.x += this.direction.x * this.velocity * elapsed;
           this.position.y += this.direction.y * this.velocity * elapsed;
         }
       },
-      shoot: danmahou.shoot({ delayBetweenShoot: 500, shootFunctions: [danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(-26, 20), towardPlayer: true }),
-      danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(26, 20), towardPlayer: true })] }),
-      delay: 2500
+      shoot: danmahou.shoot({
+        delayBetweenShoot: 500,
+        shootFunctions: [danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(-26, 20), towardPlayer: true }),
+          danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(26, 20), towardPlayer: true })]
+      }),
+      delay: 3500
     }));
 
     that.enemies.push(danmahou.enemy({
@@ -137,140 +138,55 @@ danmahou.level1 = function(screen) {
       direction: danmahou.vector2(0, 1),
       velocity: 0.3,
       life: 400,
-      image: 'enemy_rectangle',
-      collisionArea: danmahou.rect(0, 0, 72, 144),
+      sprite: danmahou.sprites.enemyRectangle,
       updateEnemy: function(elapsed) {
         if (this.position.y < 300) {
           this.position.x += this.direction.x * this.velocity * elapsed;
           this.position.y += this.direction.y * this.velocity * elapsed;
         }
       },
-      shoot: danmahou.shoot({ delayBetweenShoot: 500, shootFunctions: [danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(-26, 20), towardPlayer: true }),
-      danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(26, 20), towardPlayer: true })] }),
-      delay: 2500
+      shoot: danmahou.shoot({
+        delayBetweenShoot: 500,
+        shootFunctions: [danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(-26, 20), towardPlayer: true }),
+          danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(26, 20), towardPlayer: true })]
+      }),
+      delay: 3500
     }));
 
+    var bossShoot = 0;
+    that.enemies.push(danmahou.enemy({
+      screen: screen,
+      position: danmahou.vector2(225, -100),
+      direction: danmahou.vector2(0, 1),
+      velocity: 0.3,
+      life: 10000,
+      sprite: danmahou.sprites.boss1,
+      updateEnemy: function(elapsed) {
+        if (this.position.y < 150) {
+          this.position.x += this.direction.x * this.velocity * elapsed;
+          this.position.y += this.direction.y * this.velocity * elapsed;
+        }
 
+        if (this.life < 8000 && bossShoot < 1) {
+          bossShoot = 1;
+          this.shoot =   danmahou.shoot({
+            delayBetweenShoot: 50,
+            shootFunctions: [danmahou.shoots.straightShoot({ nbBullets: 1, relativePosition: danmahou.vector2(-100, 20)}),
+              danmahou.shoots.straightShoot({ nbBullets: 1, relativePosition: danmahou.vector2(100, 20)})]});
+        }
+        if (this.life < 6000 && bossShoot < 2) {
+          bossShoot = 2;
+          this.shoot =   danmahou.shoot({
+            delayBetweenShoot: 500,
+            shootFunctions: [danmahou.shoots.clusterShoot({ nbBullets: 32, velocityInterval: [0.20, 0.40] })]});
+        }
+      },
+      shoot: danmahou.shoot({
+        delayBetweenShoot: 4000,
+        shootFunctions: [danmahou.shoots.bossShoot()]
+      }),
+      delay: 6000
+    }));
   };
-
   return that;
-};
-
-danmahou.shoots = {};
-danmahou.shoots.circularShoot = function (spec) {
-  var nbBullets = Number(spec.nbBullets) || 16;
-  var startAngle = Number(spec.startAngle) || 0;
-  var angleToAdd = Number(spec.angleToAdd) || 0;
-  var relativePosition = spec.relativePosition || danmahou.vector2(0, 0);
-  return function(elapsed) {
-    var objectManager = this.getScreen().getObjectManager();
-    var angle = 360 / nbBullets;
-    var currentAngle = startAngle;
-    for (var i = 0; i < nbBullets; ++i) {
-      var direction = danmahou.vector2FromAngle(currentAngle);
-      direction.normalize();
-      objectManager.addEnemyBullet(
-          danmahou.bullet({
-            screen: this.getScreen(),
-            image: 'round_blue_bullet',
-            position: danmahou.vector2(this.position.x + relativePosition.x, this.position.y + relativePosition.y),
-            direction: direction,
-            velocity: 0.125,
-            collisionArea: danmahou.rect(5, 5, 9, 9),
-            isAnimated: true,
-            animationDelay: 100,
-            imageSize: danmahou.size(18, 18),
-            damage: 1
-          }));
-      currentAngle += angle;
-    }
-    startAngle = (startAngle + angleToAdd) % 360;
-  };
-};
-
-danmahou.shoots.clusterShoot = function (spec) {
-  var angleInterval = spec.angleInterval || [5, 5];
-  var velocityInterval = spec.velocityInterval || [0.15, 0.20];
-  var nbBullets = spec.nbBullets || 10;
-  var relativePosition = spec.relativePosition || danmahou.vector2(0, 0);
-
-  return function (elapsed) {
-    var objectManager = this.getScreen().getObjectManager();
-    var player = objectManager.getPlayer();
-
-    var directionTowardPlayer = player.position.subtract(this.position);
-    directionTowardPlayer = directionTowardPlayer.normalize();
-
-    var angle = directionTowardPlayer.getAngle();
-    var minAngle = angle - angleInterval[0];
-    var maxAngle = angle + angleInterval[1];
-
-    for (var i = 0; i < nbBullets; ++i) {
-      var newAngle = danmahou.random.nexFloat(minAngle, maxAngle);
-      var direction = danmahou.vector2FromAngle(newAngle).normalize();
-      var velocity = danmahou.random.nexFloat(velocityInterval[0], velocityInterval[1]);
-      objectManager.addEnemyBullet(
-      danmahou.bullet({
-        screen: this.getScreen(),
-        image: 'round_blue_bullet',
-        position: danmahou.vector2(this.position.x + relativePosition.x, this.position.y + relativePosition.y),
-        direction: direction,
-        velocity: velocity,
-        collisionArea: danmahou.rect(5, 5, 9, 9),
-        isAnimated: true,
-        animationDelay: 100,
-        imageSize: danmahou.size(18, 18),
-        damage: 1
-      }));
-    }
-  };
-};
-
-danmahou.shoots.straightShoot = function (spec) {
-  var nbBullets = spec.nbBullets || 5;
-  var velocity = spec.velocity || 0.25;
-  var relativePosition = spec.relativePosition || danmahou.vector2(0, 0);
-  var towardPlayer = spec.towardPlayer || false;
-
-  return function (elapsed) {
-    var objectManager = this.getScreen().getObjectManager();
-
-    var direction = danmahou.vector2(0, 1);
-    if (towardPlayer) {
-      var shootPosition = danmahou.vector2(this.position.x + relativePosition.x, this.position.y + relativePosition.y);
-      var player = objectManager.getPlayer();
-      direction = player.position.subtract(shootPosition).normalize();
-    }
-
-    for (var i = 0; i < nbBullets; ++i) {
-      objectManager.addEnemyBullet(
-      danmahou.bullet({
-        screen: this.getScreen(),
-        image: 'blue_bullet',
-        position: danmahou.vector2(this.position.x + relativePosition.x, this.position.y + relativePosition.y),
-        direction: direction,
-        velocity: velocity,
-        collisionArea: danmahou.rect(2, 4, 5, 15),
-        isAnimated: true,
-        animationDelay: 100,
-        imageSize: danmahou.size(7, 21),
-        damage: 1,
-        delayBeforeSpawn: 50 * i
-      }));
-    }
-  };
-};
-
-danmahou.shoot = function(spec) {
-  var shootDelay = spec.initialDelay || 0;
-  return function(elapsed) {
-    if (shootDelay <= 0) {
-      for (var i = 0; i < spec.shootFunctions.length; i++) {
-        spec.shootFunctions[i].call(this, elapsed);
-      }
-      shootDelay = spec.delayBetweenShoot;
-    } else {
-      shootDelay -= elapsed;
-    }
-  };
 };
