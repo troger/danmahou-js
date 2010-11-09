@@ -3,6 +3,8 @@ danmahou.object = function(spec) {
   var game = spec.screen.getGame();
   var screen = spec.screen;
 
+  var behaviors = [];
+  var currentBehavior = null;
   var that = {};
   that.position = spec.position || danmahou.vector2();
   that.direction = spec.direction || danmahou.vector2();
@@ -19,9 +21,27 @@ danmahou.object = function(spec) {
   };
 
   that.update = function(elapsed) {
+    if (currentBehavior == null) {
+      if (behaviors.length > 0) {
+        currentBehavior = behaviors[0];
+      }
+    }
+
+    if (currentBehavior != null) {
+      currentBehavior.update(elapsed);
+      if (currentBehavior.done === true) {
+        behaviors.slice(0, 1);
+        currentBehavior = null;
+      }
+    }
   };
   that.render = function(ctx) {
   };
+
+  that.addBehavior = function(behavior) {
+    behavior.object = that;
+    behaviors.push(behavior);
+  }
   return that;
 };
 
@@ -51,8 +71,8 @@ danmahou.player = function(spec) {
       moveY = velocity * elapsed;
     }
     if (moveX !== 0 && moveY !== 0) {
-      moveX *= 0.7;
-      moveY *= 0.7;
+      moveX *= 0.6;
+      moveY *= 0.6;
     }
     this.position.x += moveX;
     this.position.y += moveY;
