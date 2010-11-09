@@ -22,6 +22,10 @@ danmahou.sprites.playerBullet = {
   collisionArea: danmahou.rect(1, 5, 14, 45)
 };
 
+danmahou.sprites.playerBulletHit = {
+  image: 'player_bullet_hit'
+};
+
 danmahou.sprites.enemy1 = {
   image: 'enemy1',
   collisionArea: danmahou.rect(10, 10, 44, 44)

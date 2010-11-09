@@ -366,6 +366,7 @@ danmahou.objectManager = function(game) {
           if (enemies[j].isCollidable === true) {
             if(playerBullets[index].getCollisionArea().intersects(enemies[j].getCollisionArea())) {
               enemies[j].handleCollision(playerBullets[index]);
+              playerBullets[index].handleCollision(enemies[j]);
             }
           }
         }
