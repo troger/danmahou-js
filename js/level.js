@@ -40,6 +40,7 @@ danmahou.level1 = function(screen) {
     images: [
       { name: 'player', src: 'data/images/player.png' },
       { name: 'player_bullet', src: 'data/images/player_bullet.png' },
+      { name: 'player_bullet_hit', src: 'data/images/player_bullet_hit.png' },
       { name: 'enemy1', src: 'data/images/enemy1.png' },
       { name: 'enemy_rectangle', src: 'data/images/enemy_rectangle.png' },
       { name: 'round_violet_bullet', src: 'data/images/round_violet_bullet.png' },

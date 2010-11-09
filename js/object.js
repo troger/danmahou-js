@@ -238,6 +238,12 @@ danmahou.bullet = function(spec) {
     return spec.sprite.collisionArea;
   };
   that.handleCollision = function(otherObject) {
+    this.dead = true;
+    spec.screen.getObjectManager().addItems(danmahou.bulletHit({
+      screen: spec.screen,
+      sprite: danmahou.sprites.playerBulletHit,
+      displayTime: 100,
+      position: danmahou.vector2(this.position.x, this.position.y - this.size.height / 2) }))
   };
 
   that.update = function(elapsed) {
@@ -261,6 +267,23 @@ danmahou.bullet = function(spec) {
 
 };
 
+danmahou.bulletHit = function(spec) {
+  var that = danmahou.object(spec);
+  var totalElapsed = 0;
+  that.update = function(elapsed) {
+    totalElapsed += elapsed;
+    if (totalElapsed >= spec.displayTime) {
+      this.dead = true;
+    }
+  };
+
+  if (spec.sprite.isAnimated === true) {
+    return danmahou.animatedObject(that, { game: game, screen: spec.screen, image: spec.sprite.image, imageSize: spec.sprite.imageSize, animationDelay: spec.sprite.animationDelay });
+  } else {
+    return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.sprite.image });
+  }
+};
+
 danmahou.enemy = function(spec) {
   var that = danmahou.object(spec);
   that.updateEnemy = spec.updateEnemy;
@@ -273,7 +296,6 @@ danmahou.enemy = function(spec) {
   };
   that.handleCollision = function(otherObject) {
     this.life -= Number(otherObject.damage) || 0;
-    otherObject.dead = true;
     if (this.life <= 0) {
       this.dead = true;
     }
