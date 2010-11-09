@@ -55,7 +55,7 @@ danmahou.player = function(spec) {
     var velocity = 0.5;
     var moveX = 0, moveY = 0;
     if (keyboard.isKeyDown(danmahou.keys.KEY_SHIFT)) {
-      velocity = 0.25;
+      velocity = 0.20;
     }
 
     if (keyboard.isKeyDown(danmahou.keys.KEY_LEFT)) {
@@ -71,8 +71,8 @@ danmahou.player = function(spec) {
       moveY = velocity * elapsed;
     }
     if (moveX !== 0 && moveY !== 0) {
-      moveX *= 0.6;
-      moveY *= 0.6;
+      moveX *= 0.7;
+      moveY *= 0.7;
     }
     this.position.x += moveX;
     this.position.y += moveY;
