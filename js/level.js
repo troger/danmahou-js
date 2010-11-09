@@ -50,7 +50,8 @@ danmahou.level1 = function(screen) {
     sounds: [
       { name: 'stage1', src: 'data/musics/stage1.ogg' },
       { name: 'player_shoot', src: 'data/sounds/player_shoot.wav' }
-    ]
+    ],
+    nextLevel: danmahou.level2
   };
 
   var that = danmahou.level(spec);
@@ -153,8 +154,18 @@ danmahou.level1 = function(screen) {
       delay: 3500
     }));
 
-    var bossShoot = 0;
-    that.enemies.push(danmahou.enemy({
+    that.enemies.push(danmahou.boss1(screen));
+
+  };
+
+  return that;
+};
+
+danmahou.boss1 = function(screen) {
+  var bossShoot = 0;
+  var lifeBarDisplayed = false;
+
+  return danmahou.enemy({
       screen: screen,
       position: danmahou.vector2(225, -100),
       direction: danmahou.vector2(0, 1),
@@ -162,6 +173,12 @@ danmahou.level1 = function(screen) {
       life: 10000,
       sprite: danmahou.sprites.boss1,
       updateEnemy: function(elapsed) {
+        if (lifeBarDisplayed === false) {
+          lifeBarDisplayed = true;
+          var objectManager = screen.getObjectManager();
+          objectManager.addHud(danmahou.hud.lifeBar({ screen: screen,  maxLife: this.life, forObject: this}));
+        }
+
         if (this.position.y < 150) {
           this.position.x += this.direction.x * this.velocity * elapsed;
           this.position.y += this.direction.y * this.velocity * elapsed;
@@ -170,9 +187,11 @@ danmahou.level1 = function(screen) {
         if (this.life < 8000 && bossShoot < 1) {
           bossShoot = 1;
           this.shoot =   danmahou.shoot({
-            delayBetweenShoot: 50,
-            shootFunctions: [danmahou.shoots.straightShoot({ nbBullets: 1, relativePosition: danmahou.vector2(-100, 20)}),
-              danmahou.shoots.straightShoot({ nbBullets: 1, relativePosition: danmahou.vector2(100, 20)})]});
+            delayBetweenShoot: 1000,
+            shootFunctions: [danmahou.shoots.straightShoot({ nbBullets: 10, timeBetweenShoot: 75, relativePosition: danmahou.vector2(-100, 0)}),
+              danmahou.shoots.straightShoot({ nbBullets: 10, timeBetweenShoot: 75, relativePosition: danmahou.vector2(100, 0)}),
+              danmahou.shoots.straightShoot({ nbBullets: 10, timeBetweenShoot: 75, relativePosition: danmahou.vector2(-50, 0)}),
+              danmahou.shoots.straightShoot({ nbBullets: 10, timeBetweenShoot: 75, relativePosition: danmahou.vector2(50, 0)})]});
         }
         if (this.life < 6000 && bossShoot < 2) {
           bossShoot = 2;
@@ -180,13 +199,44 @@ danmahou.level1 = function(screen) {
             delayBetweenShoot: 500,
             shootFunctions: [danmahou.shoots.clusterShoot({ nbBullets: 32, velocityInterval: [0.20, 0.40] })]});
         }
+
+        if (this.life < 4000 && bossShoot < 3) {
+          bossShoot = 3;
+          this.shoot =   danmahou.shoot({
+            delayBetweenShoot: 150,
+            shootFunctions: [danmahou.shoots.circularShoot({ nbBullets: 20, angleToAdd: 10, relativePosition: danmahou.vector2(100, 0) }),
+              danmahou.shoots.circularShoot({ nbBullets: 20, angleToAdd: 10, relativePosition: danmahou.vector2(-100, 0) })]});
+        }
+
+        if (this.life < 2000 && bossShoot < 4) {
+          bossShoot = 4;
+          this.shoot =   danmahou.shoot({
+            delayBetweenShoot: 100,
+            shootFunctions: [danmahou.shoots.circularShoot({ nbBullets: 30, angleToAdd: 15 })]});
+        }
       },
       shoot: danmahou.shoot({
         delayBetweenShoot: 4000,
         shootFunctions: [danmahou.shoots.bossShoot()]
       }),
       delay: 6000
-    }));
+  });
+};
+
+danmahou.hud = {};
+danmahou.hud.lifeBar = function(spec) {
+  var that = danmahou.object(spec);
+
+  var lifeBarWidth = game.getScreenSize().width - 10;
+  var lifeBarHeight = 20;
+  that.render = function(ctx) {
+    var currentLifeBarWidth = lifeBarWidth * spec.forObject.life / spec.maxLife;
+    ctx.save();
+    ctx.fillStyle = "red";
+    ctx.fillRect(5, 5, lifeBarWidth, lifeBarHeight);
+    ctx.fillStyle = "green";
+    ctx.fillRect(5, 5, currentLifeBarWidth, lifeBarHeight);
+    ctx.restore();
   };
   return that;
 };

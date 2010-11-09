@@ -79,6 +79,7 @@ danmahou.shoots.straightShoot = function (spec) {
   var velocity = spec.velocity || 0.25;
   var relativePosition = spec.relativePosition || danmahou.vector2(0, 0);
   var towardPlayer = spec.towardPlayer || false;
+  var timeBetweenShoot = spec.timeBetweenShoot || 50;
 
   return function (elapsed) {
     var objectManager = this.getScreen().getObjectManager();
@@ -99,7 +100,7 @@ danmahou.shoots.straightShoot = function (spec) {
         direction: direction,
         velocity: velocity,
         damage: 1,
-        delayBeforeSpawn: 50 * i,
+        delayBeforeSpawn: timeBetweenShoot * i,
         angle: direction.getAngle()
       }));
     }

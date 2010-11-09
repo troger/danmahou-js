@@ -152,7 +152,7 @@ danmahou.gameScreen = function(game)  {
           game: game,
           screen: this,
           position: danmahou.vector2(screenSize.width / 2, screenSize.height),
-          life: 3
+          life: 5
         }));
       currentMusic = danmahou.sound({
         screen: this,
@@ -202,6 +202,7 @@ danmahou.gameScreen = function(game)  {
 
 danmahou.objectManager = function(game) {
   var player = null;
+  var huds = [];
   var playerBullets = [];
   var enemyBullets = [];
   var enemies = [];
@@ -219,6 +220,9 @@ danmahou.objectManager = function(game) {
 
   that.addPlayer = function(newPlayer) {
     player = newPlayer;
+  };
+  that.addHud = function(hud) {
+    huds.push(hud);
   };
   that.addPlayerBullet = function(bullet) {
     if (bullet.delayBeforeSpawn !== 0) {
@@ -255,10 +259,15 @@ danmahou.objectManager = function(game) {
 
   that.clear = function() {
     player = null;
+    huds = [];
     playerBullets = [];
-    enemyBullets = [];
+    enemyBullets= [];
     enemies = [];
     items = [];
+    pendingPlayerBullets = [];
+    pendingEnemyBullets = [];
+    pendingEnemies = [];
+    pendingItems = [];
   };
 
   that.updatePendingObjects = function (elapsed) {
@@ -311,6 +320,13 @@ danmahou.objectManager = function(game) {
       player.update(elapsed);
     }
 
+    for (index = huds.length - 1; index >= 0; index -= 1) {
+      object = huds[index];
+      object.update(elapsed);
+      if (object.dead === true) {
+        huds.splice(index, 1);
+      }
+    }
     for (index = enemies.length - 1; index >= 0; index -= 1) {
       object = enemies[index];
       object.update(elapsed);
@@ -380,6 +396,9 @@ danmahou.objectManager = function(game) {
     });
     items.forEach(function(item) {
       item.render(ctx);
+    });
+    huds.forEach(function(hud) {
+      hud.render(ctx);
     });
   };
 
