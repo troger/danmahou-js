@@ -41,6 +41,7 @@ danmahou.level1 = function(screen) {
       { name: 'player', src: 'data/images/player.png' },
       { name: 'player_bullet', src: 'data/images/player_bullet.png' },
       { name: 'player_bullet_hit', src: 'data/images/player_bullet_hit.png' },
+      { name: 'player_life', src: 'data/images/player_life.png' },
       { name: 'enemy1', src: 'data/images/enemy1.png' },
       { name: 'enemy_rectangle', src: 'data/images/enemy_rectangle.png' },
       { name: 'round_violet_bullet', src: 'data/images/round_violet_bullet.png' },
@@ -322,6 +323,20 @@ danmahou.hud.lifeBar = function(spec) {
     ctx.fillStyle = "green";
     ctx.fillRect(5, 5, currentLifeBarWidth, lifeBarHeight);
     ctx.restore();
+  };
+  return that;
+};
+
+danmahou.hud.playerInformation = function(spec) {
+  var lifeImage = spec.screen.getResourcesLoader().getImage("player_life");
+  var bombImage = spec.screen.getResourcesLoader().getImage("player_bomb");
+  var player = spec.screen.getObjectManager().getPlayer();
+
+  var that = danmahou.object(spec);
+  that.render = function(ctx) {
+    for (var i = 0; i < player.life; i++) {
+      ctx.drawImage(lifeImage, 10 + (i * (lifeImage.width + 5)), 15);
+    }
   };
   return that;
 };

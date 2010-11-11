@@ -148,12 +148,14 @@ danmahou.gameScreen = function(game)  {
     case 'initialization':
       currentLevel.initialize();
       this.getObjectManager().addPlayer(
-        player = danmahou.player({
+        danmahou.player({
           game: game,
           screen: this,
           position: danmahou.vector2(screenSize.width / 2, screenSize.height),
           life: 5
         }));
+      this.getObjectManager().addHud(
+        danmahou.hud.playerInformation({screen: this}));
       currentMusic = danmahou.sound({
         screen: this,
         name: 'stage1',

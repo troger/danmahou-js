@@ -151,7 +151,7 @@ danmahou.player = function(spec) {
   };
 
   var collisionArea = danmahou.rect(23, 23, 2, 2);
-  that.isCollidable = false;
+  that.isCollidable = true;
   that.getCollisionArea = function() {
     collisionArea.setCenter(this.position.x, this.position.y);
     return collisionArea;
