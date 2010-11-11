@@ -404,5 +404,64 @@ danmahou.objectManager = function(game) {
     });
   };
 
+  that.getPendingChildObjects = function(parent) {
+    var objects = [];
+
+    pendingEnemies.forEach(function(e) {
+      if (e.parent === parent) {
+        objects.push(e);
+      }
+    });
+    pendingPlayerBullets.forEach(function(b) {
+      if (b.parent === parent) {
+        objects.push(b);
+      }
+    });
+    pendingEnemyBullets.forEach(function(b) {
+      if (b.parent === parent) {
+        objects.push(b);
+      }
+    });
+    pendingItems.forEach(function(item) {
+      if (item.parent === parent) {
+        objects.push(item);
+      }
+    });
+
+    return objects;
+  }
+
+  that.getChildObjects = function(parent) {
+    var objects = [];
+
+    enemies.forEach(function(e) {
+      if (e.parent === parent) {
+        objects.push(e);
+      }
+    });
+    playerBullets.forEach(function(b) {
+      if (b.parent === parent) {
+        objects.push(b);
+      }
+    });
+    enemyBullets.forEach(function(b) {
+      if (b.parent === parent) {
+        objects.push(b);
+      }
+    });
+    items.forEach(function(item) {
+      if (item.parent === parent) {
+        objects.push(item);
+      }
+    });
+    huds.forEach(function(hud) {
+      if (hud.parent === parent) {
+        objects.push(hud);
+      }
+    });
+
+    return objects;
+  };
+
   return that;
 };

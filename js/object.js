@@ -6,6 +6,7 @@ danmahou.object = function(spec) {
   var behaviors = [];
   var currentBehavior = null;
   var that = {};
+  that.parent = spec.parent || null;
   that.position = spec.position || danmahou.vector2();
   that.direction = spec.direction || danmahou.vector2();
   that.velocity = spec.velocity || 0;
@@ -112,7 +113,7 @@ danmahou.player = function(spec) {
           position: danmahou.vector2(this.position.x - bulletImage.width / 2, this.position.y),
           direction: danmahou.vector2(0, -1),
           velocity: 1.5,
-          damage : 5
+          damage : 10
         }));
     objectManager.addPlayerBullet(
         danmahou.bullet({
@@ -121,7 +122,7 @@ danmahou.player = function(spec) {
           position: danmahou.vector2(this.position.x + bulletImage.width / 2, this.position.y),
           direction: danmahou.vector2(0, -1),
           velocity: 1.5,
-          damage : 5
+          damage : 10
         }));
     objectManager.addPlayerBullet(
         danmahou.bullet({
@@ -150,7 +151,7 @@ danmahou.player = function(spec) {
   };
 
   var collisionArea = danmahou.rect(23, 23, 2, 2);
-  that.isCollidable = true;
+  that.isCollidable = false;
   that.getCollisionArea = function() {
     collisionArea.setCenter(this.position.x, this.position.y);
     return collisionArea;
