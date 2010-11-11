@@ -66,7 +66,7 @@ danmahou.level1 = function(screen) {
         position: danmahou.vector2(112, -100),
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
-        life: 100,
+        life: 50,
         sprite: danmahou.sprites.enemy1,
         updateEnemy: function(elapsed) {
           if (this.position.y < 200) {
@@ -83,7 +83,7 @@ danmahou.level1 = function(screen) {
         position: danmahou.vector2(224, -100),
         direction: danmahou.vector2(0, 1),
         velocity: 0.6,
-        life: 200,
+        life: 100,
         sprite: danmahou.sprites.enemy1,
         updateEnemy: function(elapsed) {
           if (this.position.y < 250) {
@@ -118,7 +118,7 @@ danmahou.level1 = function(screen) {
       position: danmahou.vector2(112, -100),
       direction: danmahou.vector2(0, 1),
       velocity: 0.3,
-      life: 400,
+      life: 200,
       sprite: danmahou.sprites.enemyRectangle,
       updateEnemy: function(elapsed) {
         if (this.position.y < 300) {
@@ -131,7 +131,7 @@ danmahou.level1 = function(screen) {
         shootFunctions: [danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(-26, 20), towardPlayer: true }),
           danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(26, 20), towardPlayer: true })]
       }),
-      delay: 3500
+      delay: 5000
     }));
 
     that.enemies.push(danmahou.enemy({
@@ -139,7 +139,7 @@ danmahou.level1 = function(screen) {
       position: danmahou.vector2(336, -100),
       direction: danmahou.vector2(0, 1),
       velocity: 0.3,
-      life: 400,
+      life: 200,
       sprite: danmahou.sprites.enemyRectangle,
       updateEnemy: function(elapsed) {
         if (this.position.y < 300) {
@@ -152,7 +152,7 @@ danmahou.level1 = function(screen) {
         shootFunctions: [danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(-26, 20), towardPlayer: true }),
           danmahou.shoots.straightShoot({ relativePosition: danmahou.vector2(26, 20), towardPlayer: true })]
       }),
-      delay: 3500
+      delay: 5000
     }));
 
     that.enemies.push(danmahou.boss1(screen));
@@ -166,7 +166,7 @@ danmahou.boss1 = function(screen) {
   var bossShoot = 0;
   var lifeBarDisplayed = false;
 
-  return danmahou.enemy({
+  var boss = danmahou.enemy({
       screen: screen,
       position: danmahou.vector2(225, -100),
       direction: danmahou.vector2(0, 1),
@@ -174,9 +174,12 @@ danmahou.boss1 = function(screen) {
       life: 10000,
       sprite: danmahou.sprites.boss1,
       updateEnemy: function(elapsed) {
+        var objectManager = screen.getObjectManager(),
+            pendingChildren,
+            children;
+
         if (lifeBarDisplayed === false) {
           lifeBarDisplayed = true;
-          var objectManager = screen.getObjectManager();
           objectManager.addHud(danmahou.hud.lifeBar({ screen: screen,  maxLife: this.life, forObject: this}));
         }
 
@@ -186,8 +189,23 @@ danmahou.boss1 = function(screen) {
         }
 
         if (this.life < 8000 && bossShoot < 1) {
+          children = objectManager.getChildObjects(this);
+          children.forEach(function(o) {
+            o.dead = true;
+            objectManager.addItems(danmahou.bulletHit({
+              screen: screen,
+              sprite: danmahou.sprites.playerBulletHit,
+              displayTime: 500,
+              position: o.position.clone() }));
+          });
+
+          pendingChildren = objectManager.getPendingChildObjects(this);
+          pendingChildren.forEach(function(o) {
+            o.dead = true;
+          });
+
           bossShoot = 1;
-          this.shoot =   danmahou.shoot({
+          this.shoot = danmahou.shoot({
             delayBetweenShoot: 1000,
             shootFunctions: [danmahou.shoots.straightShoot({ nbBullets: 10, timeBetweenShoot: 75, relativePosition: danmahou.vector2(-100, 0)}),
               danmahou.shoots.straightShoot({ nbBullets: 10, timeBetweenShoot: 75, relativePosition: danmahou.vector2(100, 0)}),
@@ -195,33 +213,99 @@ danmahou.boss1 = function(screen) {
               danmahou.shoots.straightShoot({ nbBullets: 10, timeBetweenShoot: 75, relativePosition: danmahou.vector2(50, 0)})]});
         }
         if (this.life < 6000 && bossShoot < 2) {
+          children = objectManager.getChildObjects(this);
+          children.forEach(function(o) {
+            o.dead = true;
+            objectManager.addItems(danmahou.bulletHit({
+              screen: screen,
+              sprite: danmahou.sprites.playerBulletHit,
+              displayTime: 500,
+              position: o.position.clone() }));
+          });
+          pendingChildren = objectManager.getPendingChildObjects(this);
+          pendingChildren.forEach(function(o) {
+            o.dead = true;
+          });
+
           bossShoot = 2;
           this.shoot =   danmahou.shoot({
             delayBetweenShoot: 500,
-            shootFunctions: [danmahou.shoots.clusterShoot({ nbBullets: 32, velocityInterval: [0.20, 0.40] })]});
+            shootFunctions: [danmahou.shoots.clusterShoot({ nbBullets: 16, velocityInterval: [0.20, 0.40] })]});
         }
 
         if (this.life < 4000 && bossShoot < 3) {
+          children = objectManager.getChildObjects(this);
+          children.forEach(function(o) {
+            o.dead = true;
+            objectManager.addItems(danmahou.bulletHit({
+              screen: screen,
+              sprite: danmahou.sprites.playerBulletHit,
+              displayTime: 500,
+              position: o.position.clone() }));
+          });
+          pendingChildren = objectManager.getPendingChildObjects(this);
+          pendingChildren.forEach(function(o) {
+            o.dead = true;
+          });
+
           bossShoot = 3;
           this.shoot =   danmahou.shoot({
             delayBetweenShoot: 150,
-            shootFunctions: [danmahou.shoots.circularShoot({ nbBullets: 20, angleToAdd: 10, relativePosition: danmahou.vector2(100, 0) }),
-              danmahou.shoots.circularShoot({ nbBullets: 20, angleToAdd: 10, relativePosition: danmahou.vector2(-100, 0) })]});
+            shootFunctions: [danmahou.shoots.circularShoot({ nbBullets: 15, angleToAdd: 10, relativePosition: danmahou.vector2(100, 0) }),
+              danmahou.shoots.circularShoot({ nbBullets: 15, angleToAdd: 10, relativePosition: danmahou.vector2(-100, 0) })]});
         }
 
         if (this.life < 2000 && bossShoot < 4) {
+          children = objectManager.getChildObjects(this);
+          children.forEach(function(o) {
+            o.dead = true;
+            objectManager.addItems(danmahou.bulletHit({
+              screen: screen,
+              sprite: danmahou.sprites.playerBulletHit,
+              displayTime: 500,
+              position: o.position.clone() }));
+          });
+          pendingChildren = objectManager.getPendingChildObjects(this);
+          pendingChildren.forEach(function(o) {
+            o.dead = true;
+          });
+
           bossShoot = 4;
           this.shoot =   danmahou.shoot({
             delayBetweenShoot: 100,
-            shootFunctions: [danmahou.shoots.circularShoot({ nbBullets: 30, angleToAdd: 15 })]});
+            shootFunctions: [danmahou.shoots.circularShoot({ nbBullets: 20, angleToAdd: 15 })]});
         }
       },
       shoot: danmahou.shoot({
         delayBetweenShoot: 4000,
         shootFunctions: [danmahou.shoots.bossShoot()]
       }),
-      delay: 6000
+      delay: 10000
   });
+
+  var oldHandleCollision = boss.handleCollision;
+  boss.handleCollision = function(otherObject) {
+    oldHandleCollision.call(this, otherObject);
+
+    if (this.dead) {
+      var objectManager = screen.getObjectManager();
+      var children = objectManager.getChildObjects(this);
+      children.forEach(function(o) {
+        o.dead = true;
+        objectManager.addItems(danmahou.bulletHit({
+          screen: screen,
+          sprite: danmahou.sprites.playerBulletHit,
+          displayTime: 500,
+          position: o.position.clone() }));
+      });
+      var pendingChildren = objectManager.getPendingChildObjects(this);
+      pendingChildren.forEach(function(o) {
+        o.dead = true;
+      });
+    }
+  };
+
+  return boss;
 };
 
 danmahou.hud = {};

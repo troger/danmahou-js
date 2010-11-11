@@ -27,6 +27,7 @@ danmahou.shoots.circularShoot = function (spec) {
       direction.normalize();
       objectManager.addEnemyBullet(
           danmahou.bullet({
+            parent: this,
             screen: this.getScreen(),
             sprite: danmahou.sprites.roundBlueBullet,
             position: danmahou.vector2(this.position.x + relativePosition.x, this.position.y + relativePosition.y),
@@ -63,6 +64,7 @@ danmahou.shoots.clusterShoot = function (spec) {
       var velocity = danmahou.random.nexFloat(velocityInterval[0], velocityInterval[1]);
       objectManager.addEnemyBullet(
       danmahou.bullet({
+        parent: this,
         screen: this.getScreen(),
         sprite: danmahou.sprites.roundBlueBullet,
         position: danmahou.vector2(this.position.x + relativePosition.x, this.position.y + relativePosition.y),
@@ -94,6 +96,7 @@ danmahou.shoots.straightShoot = function (spec) {
     for (var i = 0; i < nbBullets; ++i) {
       objectManager.addEnemyBullet(
       danmahou.bullet({
+        parent: this,
         screen: this.getScreen(),
         sprite: danmahou.sprites.blueBullet,
         position: danmahou.vector2(this.position.x + relativePosition.x, this.position.y + relativePosition.y),
@@ -126,6 +129,7 @@ danmahou.shoots.bossShoot = function (spec) {
       var velocity = 0.1 + Math.random() * 0.3;
       objectManager.addEnemyBullet(
       danmahou.bullet({
+        parent: this,
         screen: this.getScreen(),
         sprite: danmahou.sprites.roundBlueBullet,
         position: danmahou.vector2(this.position.x + relativePosition.x, this.position.y + relativePosition.y),
