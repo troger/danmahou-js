@@ -51,7 +51,7 @@ danmahou.level1 = function(screen) {
       { name: 'boss1', src: 'data/images/boss1.png' }
     ],
     sounds: [
-//      { name: 'stage1', src: 'data/musics/stage1.ogg' },
+      { name: 'stage1', src: 'data/musics/stage1.ogg' },
       { name: 'player_shoot', src: 'data/sounds/player_shoot.wav' }
     ],
     nextLevel: danmahou.level2

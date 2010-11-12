@@ -155,12 +155,12 @@ danmahou.gameScreen = function(game)  {
         }));
       this.getObjectManager().addHud(
         danmahou.hud.playerInformation({screen: this}));
-//      currentMusic = danmahou.sound({
-//        screen: this,
-//        name: 'stage1',
-//        loop: true
-//      });
-//      currentMusic.play();
+        currentMusic = danmahou.sound({
+          screen: this,
+          name: 'stage1',
+          loop: true
+        });
+        currentMusic.play();
       currentState = 'inGame';
       break;
     case 'inGame':
