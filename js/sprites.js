@@ -7,6 +7,14 @@ danmahou.sprites.roundBlueBullet = {
   imageSize: danmahou.size(18, 18)
 };
 
+danmahou.sprites.roundVioletBullet = {
+  image: 'round_violet_bullet',
+  collisionArea: danmahou.rect(2, 4, 5, 15),
+  animationDelay: 100,
+  isAnimated: true,
+  imageSize: danmahou.size(18, 18)
+};
+
 danmahou.sprites.blueBullet = {
   image: 'blue_bullet',
   collisionArea: danmahou.rect(2, 4, 5, 15)

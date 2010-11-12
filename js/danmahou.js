@@ -1,8 +1,7 @@
 danmahou.danmahouGame = function() {
-  var game = danmahou.game({ screenSize: danmahou.size(450, 600),
-                             gameKeys: [danmahou.keys.KEY_UP, danmahou.keys.KEY_DOWN, danmahou.keys.KEY_RIGHT,
-                                        danmahou.keys.KEY_LEFT, danmahou.keys.KEY_SHIFT, danmahou.keys.KEY_ENTER] });
-  return game;
+  return danmahou.game({ screenSize: danmahou.size(450, 600),
+    gameKeys: [danmahou.keys.KEY_UP, danmahou.keys.KEY_DOWN, danmahou.keys.KEY_RIGHT,
+      danmahou.keys.KEY_LEFT, danmahou.keys.KEY_SHIFT, danmahou.keys.KEY_ENTER] });
 };
 
 danmahou.mainMenuScreen = function(game) {
@@ -156,12 +155,12 @@ danmahou.gameScreen = function(game)  {
         }));
       this.getObjectManager().addHud(
         danmahou.hud.playerInformation({screen: this}));
-      currentMusic = danmahou.sound({
-        screen: this,
-        name: 'stage1',
-        loop: true
-      });
-      currentMusic.play();
+//      currentMusic = danmahou.sound({
+//        screen: this,
+//        name: 'stage1',
+//        loop: true
+//      });
+//      currentMusic.play();
       currentState = 'inGame';
       break;
     case 'inGame':
@@ -248,7 +247,7 @@ danmahou.objectManager = function(game) {
       enemies.push(enemy);
     }
   };
-  that.addItems = function(item) {
+  that.addItem = function(item) {
     if (item.delayBeforeSpawn !== 0) {
       pendingItems.push(item);
     } else {
@@ -258,6 +257,14 @@ danmahou.objectManager = function(game) {
 
   that.getPlayer = function() {
     return player;
+  };
+
+  that.getEnemies = function() {
+    return enemies;
+  };
+
+  that.getEnemyBullets = function() {
+    return enemyBullets;
   };
 
   that.clear = function() {
