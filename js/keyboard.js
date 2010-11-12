@@ -5,7 +5,8 @@ danmahou.keys = {
   KEY_RIGHT: 39,
   KEY_DOWN: 40,
   KEY_Z: 90,
-  
+  KEY_X: 88,
+
   KEY_SPACE: 32,
   KEY_ENTER: 13,
   KEY_SHIFT: 16

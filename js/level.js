@@ -42,6 +42,7 @@ danmahou.level1 = function(screen) {
       { name: 'player_bullet', src: 'data/images/player_bullet.png' },
       { name: 'player_bullet_hit', src: 'data/images/player_bullet_hit.png' },
       { name: 'player_life', src: 'data/images/player_life.png' },
+      { name: 'player_bomb', src: 'data/images/player_bomb.png' },
       { name: 'enemy1', src: 'data/images/enemy1.png' },
       { name: 'enemy_rectangle', src: 'data/images/enemy_rectangle.png' },
       { name: 'round_violet_bullet', src: 'data/images/round_violet_bullet.png' },
@@ -192,12 +193,7 @@ danmahou.boss1 = function(screen) {
         if (this.life < 8000 && bossShoot < 1) {
           children = objectManager.getChildObjects(this);
           children.forEach(function(o) {
-            o.dead = true;
-            objectManager.addItems(danmahou.bulletHit({
-              screen: screen,
-              sprite: danmahou.sprites.playerBulletHit,
-              displayTime: 500,
-              position: o.position.clone() }));
+            o.cancel();
           });
 
           pendingChildren = objectManager.getPendingChildObjects(this);
@@ -216,12 +212,7 @@ danmahou.boss1 = function(screen) {
         if (this.life < 6000 && bossShoot < 2) {
           children = objectManager.getChildObjects(this);
           children.forEach(function(o) {
-            o.dead = true;
-            objectManager.addItems(danmahou.bulletHit({
-              screen: screen,
-              sprite: danmahou.sprites.playerBulletHit,
-              displayTime: 500,
-              position: o.position.clone() }));
+            o.cancel();
           });
           pendingChildren = objectManager.getPendingChildObjects(this);
           pendingChildren.forEach(function(o) {
@@ -237,12 +228,7 @@ danmahou.boss1 = function(screen) {
         if (this.life < 4000 && bossShoot < 3) {
           children = objectManager.getChildObjects(this);
           children.forEach(function(o) {
-            o.dead = true;
-            objectManager.addItems(danmahou.bulletHit({
-              screen: screen,
-              sprite: danmahou.sprites.playerBulletHit,
-              displayTime: 500,
-              position: o.position.clone() }));
+            o.cancel();
           });
           pendingChildren = objectManager.getPendingChildObjects(this);
           pendingChildren.forEach(function(o) {
@@ -259,12 +245,7 @@ danmahou.boss1 = function(screen) {
         if (this.life < 2000 && bossShoot < 4) {
           children = objectManager.getChildObjects(this);
           children.forEach(function(o) {
-            o.dead = true;
-            objectManager.addItems(danmahou.bulletHit({
-              screen: screen,
-              sprite: danmahou.sprites.playerBulletHit,
-              displayTime: 500,
-              position: o.position.clone() }));
+            o.cancel();
           });
           pendingChildren = objectManager.getPendingChildObjects(this);
           pendingChildren.forEach(function(o) {
@@ -292,12 +273,7 @@ danmahou.boss1 = function(screen) {
       var objectManager = screen.getObjectManager();
       var children = objectManager.getChildObjects(this);
       children.forEach(function(o) {
-        o.dead = true;
-        objectManager.addItems(danmahou.bulletHit({
-          screen: screen,
-          sprite: danmahou.sprites.playerBulletHit,
-          displayTime: 500,
-          position: o.position.clone() }));
+        o.cancel();
       });
       var pendingChildren = objectManager.getPendingChildObjects(this);
       pendingChildren.forEach(function(o) {
@@ -317,6 +293,9 @@ danmahou.hud.lifeBar = function(spec) {
   var lifeBarHeight = 20;
   that.render = function(ctx) {
     var currentLifeBarWidth = lifeBarWidth * spec.forObject.life / spec.maxLife;
+    if (currentLifeBarWidth < 0) {
+      currentLifeBarWidth = 0;
+    }
     ctx.save();
     ctx.fillStyle = "red";
     ctx.fillRect(5, 5, lifeBarWidth, lifeBarHeight);
@@ -331,11 +310,18 @@ danmahou.hud.playerInformation = function(spec) {
   var lifeImage = spec.screen.getResourcesLoader().getImage("player_life");
   var bombImage = spec.screen.getResourcesLoader().getImage("player_bomb");
   var player = spec.screen.getObjectManager().getPlayer();
+  var y = spec.screen.getGame().getScreenSize().height - 30;
 
   var that = danmahou.object(spec);
   that.render = function(ctx) {
     for (var i = 0; i < player.life; i++) {
-      ctx.drawImage(lifeImage, 10 + (i * (lifeImage.width + 5)), 15);
+      ctx.drawImage(lifeImage, 10 + (i * (lifeImage.width + 5)), y);
+    }
+
+    var startX = (spec.screen.getGame().getScreenSize().width - 5)
+        - (player.bombs * (bombImage.width + 5));
+    for (var i = 0; i < player.bombs; i++) {
+      ctx.drawImage(bombImage, startX + (i * (bombImage.width + 5)), y);
     }
   };
   return that;

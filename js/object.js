@@ -50,6 +50,7 @@ danmahou.player = function(spec) {
   var delay = 0;
 
   var that = danmahou.object(spec);
+  that.bombs = 3;
 
   that.update = function(elapsed) {
     var keyboard = game.getKeyboard();
@@ -100,6 +101,18 @@ danmahou.player = function(spec) {
         delay -= elapsed;
       }
     }
+
+    if (keyboard.isKeyPressed(danmahou.keys.KEY_X)) {
+      var objectManager = spec.screen.getObjectManager();
+      if (this.bombs > 0) {
+        this.bombs--;
+        objectManager.addPlayerBullet(
+          danmahou.bomb({
+            screen: spec.screen,
+            bombTime: 1000
+          }));
+      }
+    }
   };
 
   that.shoot = function() {
@@ -142,7 +155,6 @@ danmahou.player = function(spec) {
           velocity: 1.5,
           damage : 5
         }));
-
     danmahou.sound({
       screen: spec.screen,
       name: 'player_shoot',
@@ -233,18 +245,28 @@ danmahou.bullet = function(spec) {
   var that = danmahou.object(spec);
 
   that.damage = spec.damage || 0;
-  that.isCollidable = true;
+  that.isCollidable = spec.isCollidable !== undefined ? spec.isCollidable : true;
   that.getCollisionArea = function() {
     spec.sprite.collisionArea.setCenter(this.position.x, this.position.y);
     return spec.sprite.collisionArea;
   };
   that.handleCollision = function(otherObject) {
     this.dead = true;
-    spec.screen.getObjectManager().addItems(danmahou.bulletHit({
+    spec.screen.getObjectManager().addItem(danmahou.bulletHit({
       screen: spec.screen,
       sprite: danmahou.sprites.playerBulletHit,
       displayTime: 100,
       position: danmahou.vector2(this.position.x, this.position.y - this.size.height / 2) }))
+  };
+
+  that.cancel = function() {
+    this.dead = true;
+    spec.screen.getObjectManager().addItem(danmahou.bulletHit({
+      screen: spec.screen,
+      sprite: danmahou.sprites.playerBulletHit,
+      displayTime: 500,
+      position: this.position.clone()
+    }));
   };
 
   that.update = function(elapsed) {
@@ -283,6 +305,47 @@ danmahou.bulletHit = function(spec) {
   } else {
     return danmahou.visualObject(that, { game: game, screen: spec.screen, image: spec.sprite.image });
   }
+};
+
+danmahou.bomb = function(spec) {
+  var objectManager = spec.screen.getObjectManager();
+  var beforeSpawn = Math.random() * 250;
+  for (var i = 0; i < 10; ++i) {
+    objectManager.addItem(
+      danmahou.bulletHit({
+        screen: spec.screen,
+        sprite: danmahou.sprites.roundVioletBullet,
+        position: danmahou.vector2(Math.random() * spec.screen.getGame().getScreenSize().width, Math.random() * spec.screen.getGame().getScreenSize().height),
+        delayBeforeSpawn: beforeSpawn,
+        displayTime: 1000
+      }));
+  }
+
+  var that = danmahou.object(spec);
+  var totalElapsed = 0;
+  var damageTime = 0;
+  that.update = function(elapsed) {
+    totalElapsed += elapsed;
+    damageTime += elapsed;
+    if (totalElapsed >= spec.bombTime) {
+      this.dead = true;
+    }
+
+    objectManager.getEnemyBullets().forEach(function(b) {
+      b.cancel();
+    });
+    objectManager.getEnemies().forEach(function(e) {
+      // do damage every 100 ms
+      if (damageTime >= 100) {
+        e.life -= 100;
+        if (e.life <= 0) {
+          e.dead = true;
+        }
+        damageTime = 0;
+      }
+    });
+  };
+  return that;
 };
 
 danmahou.enemy = function(spec) {
